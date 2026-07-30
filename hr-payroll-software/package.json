@@ -1,0 +1,54 @@
+{
+  "name": "hr-payroll-software",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline-first Windows HRMS + Payroll desktop application",
+  "author": "Industrial Fans India Private Limited",
+  "license": "UNLICENSED",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev:client": "npm run dev --workspace client",
+    "dev:server": "npm run dev --workspace server",
+    "build:client": "npm run build --workspace client",
+    "build:server": "npm run build --workspace server",
+    "build": "npm run build:client && npm run build:server",
+    "electron:dev": "electron .",
+    "dist": "npm run build && electron-builder --win",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
+    "concurrently": "^8.2.2"
+  },
+  "build": {
+    "appId": "com.industrialfans.hrpayroll",
+    "productName": "HR Payroll Software",
+    "files": [
+      "electron/**/*",
+      "server/dist/**/*",
+      "client/dist/**/*",
+      "database/**/*"
+    ],
+    "directories": {
+      "output": "installer/dist"
+    },
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**/*"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "HR Payroll Software"
+    }
+  }
+}

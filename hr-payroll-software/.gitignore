@@ -1,0 +1,11 @@
+node_modules/
+dist/
+client/dist/
+server/dist/
+installer/dist/
+database/*.db
+database/*.db-journal
+database/*.db-wal
+*.log
+.env
+.DS_Store
