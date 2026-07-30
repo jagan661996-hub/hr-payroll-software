@@ -1,8 +1,12 @@
 import { createApp } from "./app";
 import { env } from "./config/env";
 import { getDb } from "./config/database";
+import { runMigrations } from "./database/migrate";
+import { runSeed } from "./database/seed";
 
-getDb(); // establish/create the SQLite file on boot
+const db = getDb();
+runMigrations(db);
+runSeed(db);
 
 const app = createApp();
 
