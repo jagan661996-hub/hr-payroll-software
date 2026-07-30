@@ -1,11 +1,40 @@
 import { app, BrowserWindow } from "electron";
 import path from "path";
+import http from "http";
+import fs from "fs";
 
-// Phase 1: window shell only. Starting the embedded Express server
-// as a child process (or in-process import) and pointing DB_PATH at
-// app.getPath('userData') happens in Phase 2/3 once auth + DB are in
-// place, so the packaged app writes its SQLite file under
-// %APPDATA%/HR Payroll Software instead of the install directory.
+const CLIENT_DIR = path.join(__dirname, "../client/dist");
+const STATIC_PORT = 4311;
+
+const MIME_TYPES: Record<string, string> = {
+  ".html": "text/html",
+  ".js": "application/javascript",
+  ".css": "text/css",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".json": "application/json"
+};
+
+function startStaticServer(): Promise<void> {
+  return new Promise((resolve) => {
+    const server = http.createServer((req, res) => {
+      let filePath = path.join(CLIENT_DIR, req.url === "/" ? "index.html" : req.url || "");
+      if (!fs.existsSync(filePath)) filePath = path.join(CLIENT_DIR, "index.html");
+      const ext = path.extname(filePath);
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          res.writeHead(404);
+          res.end();
+          return;
+        }
+        res.writeHead(200, { "Content-Type": MIME_TYPES[ext] || "application/octet-stream" });
+        res.end(data);
+      });
+    });
+    server.listen(STATIC_PORT, "127.0.0.1", () => resolve());
+  });
+}
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
@@ -24,11 +53,16 @@ function createWindow() {
   if (devServerUrl) {
     win.loadURL(devServerUrl);
   } else {
-    win.loadFile(path.join(__dirname, "../client/dist/index.html"));
+    win.loadURL(`http://localhost:${STATIC_PORT}/index.html`);
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  if (!process.env.VITE_DEV_SERVER_URL) {
+    await startStaticServer();
+  }
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
