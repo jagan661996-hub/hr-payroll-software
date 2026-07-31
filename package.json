@@ -31,11 +31,12 @@
     "appId": "com.industrialfans.hrpayroll",
     "productName": "HR Payroll Software",
     "files": [
-      "electron/*.js",
-      "server/dist/**/*",
-      "client/dist/**/*",
-      "database/**/*"
-    ],
+  "electron/*.js",
+  "server/dist/**/*",
+  "client/dist/**/*",
+  "database/**/*",
+  "node_modules/**/*"
+],
     "directories": {
       "output": "installer/dist"
     },
