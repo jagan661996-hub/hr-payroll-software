@@ -27,6 +27,9 @@
     "concurrently": "^8.2.2",
     "typescript": "^5.5.3"
   },
+  "dependencies": {
+    "better-sqlite3": "^11.1.2"
+  },
   "build": {
     "appId": "com.industrialfans.hrpayroll",
     "productName": "HR Payroll Software",
