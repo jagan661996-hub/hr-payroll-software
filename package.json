@@ -31,12 +31,13 @@
     "appId": "com.industrialfans.hrpayroll",
     "productName": "HR Payroll Software",
     "files": [
-  "electron/*.js",
-  "server/dist/**/*",
-  "client/dist/**/*",
-  "database/**/*",
-  "node_modules/**/*"
-],
+      "electron/*.js",
+      "server/dist/**/*",
+      "client/dist/**/*",
+      "database/**/*",
+      "node_modules/better-sqlite3/**/*",
+      "server/node_modules/better-sqlite3/**/*"
+    ],
     "directories": {
       "output": "installer/dist"
     },
