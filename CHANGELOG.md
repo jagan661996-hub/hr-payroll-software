@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] - Phase 3: Authentication
+- Real login: `POST /api/auth/login` verifies against the seeded admin user with bcrypt, issues a JWT
+- `GET /api/auth/me` and an `authenticate` middleware protecting `/api/employees/*`
+- `requireRole()` helper ready for role-gated routes in later phases (Admin/HR/Employee)
+- Client: login form now actually calls the API, stores the session, and shows real error messages on wrong credentials
+- Dashboard and all its data now require being logged in (`RequireAuth` route guard) - direct navigation to `/` without a session redirects to `/login`
+- Header shows the logged-in user's email/role and a working Log out button
+- A 401 response from the API (e.g. expired token) automatically signs the user out instead of silently failing
+- Server bundling issues from Phase 2 packaging (Express/better-sqlite3 not found, wrong migrations path) fully resolved and verified locally end-to-end before shipping
+
 ## [0.2.0] - Phase 2: Database
 - Converted `database/schema.sql` into a versioned migration (`database/migrations/001_initial_schema.sql`)
 - Added a migration runner that tracks and applies pending `.sql` files on every app start

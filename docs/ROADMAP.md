@@ -5,8 +5,8 @@ Each phase is delivered separately and waits for review before the next one star
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Project setup: folder structure, configs, draft DB schema, Electron shell, CI build workflow | Done |
-| 2 | Database: migration runner, seed data, repositories per table | **Done (this delivery)** |
-| 3 | Authentication: Admin/HR/Employee login, JWT sessions, role guards | Not started |
+| 2 | Database: migration runner, seed data, repositories per table | Done |
+| 3 | Authentication: Admin/HR/Employee login, JWT sessions, role guards | **Done (this delivery)** |
 | 4 | Employee Module: Employee/Department/Designation/Branch/Shift masters | Not started |
 | 5 | Attendance: daily/monthly views, Excel import matching Attendance.xlsx layout, corrections, lock | Not started |
 | 6 | Leave: leave types/balances/requests matching Staff_Leave_Details.xls, approval workflow, calendar | Not started |
