@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0] - Phase 5: Attendance
+- `attendance_daily` table now fully wired up: `GET /api/attendance?year=&month=` returns the whole month's grid for every employee
+- Excel import (`POST /api/attendance/import`, ADMIN/HR only) parses the exact layout of the original `Attendance.xlsx` - Sl:No/Name/Location columns, then one date column per day - matching employees by name and importing their daily status codes (P/A/OD/L/WFH/HD/WO/HL)
+- Import correctly skips the legend/key rows some sheets have at the bottom (e.g. "P=Present") by requiring a real numeric Sl:No, and reports back which names matched vs. couldn't be matched
+- Manual day-by-day editing: click any cell in the Attendance page grid to change that employee's status for that day (`PUT /api/attendance/:employeeId/:date`, ADMIN/HR only)
+- Attendance page: month navigation, color-coded status badges, horizontal-scrolling grid for employees × days
+- Verified against your actual uploaded `Attendance.xlsx` file end-to-end (81 real day-records imported and confirmed correct) before shipping, plus a full local packaging dry-run
+
 ## [0.4.0] - Phase 4: Employee Module
 - Full employee CRUD: `POST /api/employees`, `PUT /api/employees/:id`, in addition to the existing list/summary endpoints
 - `GET /api/meta` returns departments, designations, branches, and shifts in one call for dropdown data

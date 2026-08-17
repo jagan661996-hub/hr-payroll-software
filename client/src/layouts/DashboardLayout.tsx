@@ -4,7 +4,7 @@ import { useAuthStore } from "../store/authStore";
 const NAV_ITEMS: { label: string; path?: string }[] = [
   { label: "Dashboard", path: "/" },
   { label: "Employees", path: "/employees" },
-  { label: "Attendance" },
+  { label: "Attendance", path: "/attendance" },
   { label: "Leave" },
   { label: "On Duty" },
   { label: "Payroll" },
