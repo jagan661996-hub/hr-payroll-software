@@ -8,8 +8,8 @@ Each phase is delivered separately and waits for review before the next one star
 | 2 | Database: migration runner, seed data, repositories per table | Done |
 | 3 | Authentication: Admin/HR/Employee login, JWT sessions, role guards | Done |
 | 4 | Employee Module: Employee/Department/Designation/Branch/Shift masters | Done |
-| 5 | Attendance: daily/monthly views, Excel import matching Attendance.xlsx layout, corrections, lock | **Done (this delivery)** |
-| 6 | Leave: leave types/balances/requests matching Staff_Leave_Details.xls, approval workflow, calendar | Not started |
+| 5 | Attendance: daily/monthly views, Excel import matching Attendance.xlsx layout, corrections, lock | Done |
+| 6 | Leave: leave types/balances/requests matching Staff_Leave_Details.xls, approval workflow, calendar | **Done (this delivery)** |
 | 7 | Payroll: salary structure editor, monthly run, payslip PDF matching the sample, salary register, bank transfer report | Not started |
 | 8 | Reports: PF/ESI/Form 16 data, dashboards, charts | Not started |
 | 9 | Settings: company/financial year/policies, backup/restore, audit logs, roles | Not started |

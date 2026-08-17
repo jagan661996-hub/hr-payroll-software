@@ -85,7 +85,8 @@ function seedLeaveTypes(db: Database.Database) {
     ["Loss of Pay", 0, 0],
     ["Maternity Leave", 1, 182],
     ["Paternity Leave", 1, 15],
-    ["Comp Off", 1, 0]
+    ["Comp Off", 1, 0],
+    ["Imported Leave (Historical)", 1, 0]
   ];
   types.forEach(([name, paid, days]) => {
     getOrInsert(

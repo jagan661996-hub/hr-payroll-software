@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0] - Phase 6: Leave
+- Leave request workflow: `POST /api/leave` (apply), `PUT /api/leave/:id/status` (approve/reject, ADMIN/HR only) - approving a request automatically updates that employee's leave balance
+- Leave balances (`GET /api/leave/balances?year=`) auto-create with each leave type's default annual allowance the first time they're touched
+- Historical register import (`POST /api/leave/import`, ADMIN/HR only) parses the exact layout of the original `Staff_Leave_Details.xls` - handles multiple yearly sheets in one workbook, matches employees by name, and sums each employee's monthly totals into a yearly figure
+- Fixed a real bug found via testing against your actual file: two sheets in your workbook both covered 2021 with different totals (13 vs 7 days) - import now takes the larger total instead of silently letting whichever sheet processed last overwrite the other
+- Leave page: Requests tab (apply, approve, reject) and Balances tab (opening/accrued/used/remaining per employee and leave type)
+- Verified end-to-end with an 8-step test including a real import of your uploaded `Staff_Leave_Details.xls` (5 sheets, correctly matched by name, correctly deduplicated) before shipping, plus a full local packaging dry-run
+
 ## [0.5.0] - Phase 5: Attendance
 - `attendance_daily` table now fully wired up: `GET /api/attendance?year=&month=` returns the whole month's grid for every employee
 - Excel import (`POST /api/attendance/import`, ADMIN/HR only) parses the exact layout of the original `Attendance.xlsx` - Sl:No/Name/Location columns, then one date column per day - matching employees by name and importing their daily status codes (P/A/OD/L/WFH/HD/WO/HL)
