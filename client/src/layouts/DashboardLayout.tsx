@@ -1,21 +1,18 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, NavLink } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
-const NAV_ITEMS = [
-  "Dashboard",
-  "Employees",
-  "Attendance",
-  "Leave",
-  "On Duty",
-  "Payroll",
-  "Documents",
-  "Reports",
-  "Settings"
+const NAV_ITEMS: { label: string; path?: string }[] = [
+  { label: "Dashboard", path: "/" },
+  { label: "Employees", path: "/employees" },
+  { label: "Attendance" },
+  { label: "Leave" },
+  { label: "On Duty" },
+  { label: "Payroll" },
+  { label: "Documents" },
+  { label: "Reports" },
+  { label: "Settings" }
 ];
 
-// Sidebar/topbar shell. Only "Dashboard" is wired to a route so far;
-// the rest are placeholders that later phases will connect to real
-// pages (Employee Module = Phase 4, Attendance = Phase 5, etc.)
 export default function DashboardLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -33,14 +30,32 @@ export default function DashboardLayout() {
           HR Payroll
         </div>
         <nav className="flex-1 py-3">
-          {NAV_ITEMS.map((item) => (
-            <div
-              key={item}
-              className="px-5 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white cursor-pointer transition-colors"
-            >
-              {item}
-            </div>
-          ))}
+          {NAV_ITEMS.map((item) =>
+            item.path ? (
+              <NavLink
+                key={item.label}
+                to={item.path}
+                end={item.path === "/"}
+                className={({ isActive }) =>
+                  `block px-5 py-2.5 text-sm transition-colors ${
+                    isActive
+                      ? "bg-slate-800 text-white"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ) : (
+              <div
+                key={item.label}
+                className="px-5 py-2.5 text-sm text-slate-500 cursor-not-allowed"
+                title="Coming in a later phase"
+              >
+                {item.label}
+              </div>
+            )
+          )}
         </nav>
       </aside>
       <div className="flex-1 flex flex-col">

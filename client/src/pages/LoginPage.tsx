@@ -57,7 +57,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-              placeholder="••••••••"
+              placeholder="********"
             />
           </div>
           <button
@@ -65,7 +65,7 @@ export default function LoginPage() {
             disabled={submitting}
             className="w-full rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium py-2.5 transition-colors"
           >
-            {submitting ? "Signing in…" : "Sign In"}
+            {submitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
 

@@ -1,13 +1,20 @@
 import { Router } from "express";
-import { listEmployees, getEmployeeSummary } from "../controllers/employee.controller";
-import { authenticate } from "../middleware/auth";
+import {
+  listEmployees,
+  getEmployeeSummary,
+  createEmployee,
+  updateEmployee
+} from "../controllers/employee.controller";
+import { authenticate, requireRole } from "../middleware/auth";
 
 const router = Router();
 
-// All employee data requires a logged-in user as of Phase 3.
 router.use(authenticate);
 
 router.get("/", listEmployees);
 router.get("/summary", getEmployeeSummary);
+
+router.post("/", requireRole("ADMIN", "HR"), createEmployee);
+router.put("/:id", requireRole("ADMIN", "HR"), updateEmployee);
 
 export default router;

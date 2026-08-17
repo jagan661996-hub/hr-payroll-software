@@ -7,8 +7,6 @@ export interface User {
   created_at: string;
 }
 
-// Never send password_hash back to the client - this is the safe
-// subset that goes into JWT payloads and API responses.
 export interface AuthUser {
   id: number;
   email: string;

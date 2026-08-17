@@ -8,11 +8,6 @@ const PLACEHOLDER_CARDS = [
   { label: "Pending Approvals", value: "--" }
 ];
 
-// The 4 cards above stay placeholders until Attendance (Phase 5) and
-// Leave (Phase 6) exist - they need real daily data those modules own.
-// The "Employees in System" card below is genuinely live: it calls
-// the database through the API, proving the full pipeline (SQLite ->
-// Express -> Electron -> React) actually works end to end.
 export default function DashboardHome() {
   const [employeeCount, setEmployeeCount] = useState<number | null>(null);
   const [dbStatus, setDbStatus] = useState<"checking" | "connected" | "error">("checking");
@@ -41,7 +36,7 @@ export default function DashboardHome() {
 
         <div className="bg-white rounded-xl2 shadow-card p-4 border border-brand-100">
           <div className="text-2xl font-semibold text-brand-700">
-            {dbStatus === "checking" ? "…" : dbStatus === "error" ? "!" : employeeCount}
+            {dbStatus === "checking" ? "..." : dbStatus === "error" ? "!" : employeeCount}
           </div>
           <div className="text-xs text-slate-500 mt-1">Employees in System (live)</div>
         </div>
@@ -49,10 +44,10 @@ export default function DashboardHome() {
 
       <div className="bg-white rounded-xl2 shadow-card p-4 text-sm">
         <span className="font-medium text-slate-700">Database status: </span>
-        {dbStatus === "checking" && <span className="text-slate-500">Checking connection…</span>}
+        {dbStatus === "checking" && <span className="text-slate-500">Checking connection...</span>}
         {dbStatus === "connected" && (
           <span className="text-emerald-600">
-            Connected — migrations and seed data applied successfully.
+            Connected -- migrations and seed data applied successfully.
           </span>
         )}
         {dbStatus === "error" && (

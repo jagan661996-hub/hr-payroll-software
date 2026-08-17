@@ -1,12 +1,6 @@
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 
-// Idempotent: safe to run on every app start. Every insert first
-// checks whether the row already exists, so re-running this never
-// creates duplicates. Reference data (departments, leave types, etc.)
-// is minimal starter data for Phase 2 - HR admins get real CRUD
-// screens to manage these from Phase 4/6 onward instead of editing
-// this file.
 export function runSeed(db: Database.Database): void {
   seedDepartments(db);
   seedDesignations(db);
@@ -43,7 +37,6 @@ function seedDepartments(db: Database.Database) {
 }
 
 function seedDesignations(db: Database.Database) {
-  // "Design Engineer" is the real designation from Payslip_INDF0026_Jul_2025.pdf
   ["Design Engineer", "HR Executive", "Accountant", "Production Supervisor"].forEach((title) => {
     getOrInsert(
       db,
@@ -57,7 +50,6 @@ function seedDesignations(db: Database.Database) {
 }
 
 function seedBranches(db: Database.Database) {
-  // Address traced from the sample payslip letterhead
   getOrInsert(
     db,
     "branches",
@@ -120,7 +112,7 @@ function seedAdminUser(db: Database.Database): number {
     .run(email, passwordHash);
 
   console.log(
-    `[seed] created default admin user -> email: ${email} / password: Admin@123 (change this once real login is wired up in Phase 3)`
+    `[seed] created default admin user -> email: ${email} / password: Admin@123`
   );
   return Number(result.lastInsertRowid);
 }
@@ -163,7 +155,6 @@ function seedSampleEmployee(db: Database.Database, adminUserId: number) {
 
   const employeeId = Number(employeeResult.lastInsertRowid);
 
-  // Figures traced directly from Payslip_INDF0026_Jul_2025.pdf
   db.prepare(
     `INSERT INTO salary_structures
       (employee_id, effective_from, basic, dearness_allowance, hra, fixed_allowance,
@@ -172,5 +163,5 @@ function seedSampleEmployee(db: Database.Database, adminUserId: number) {
   ).run(employeeId, "2023-06-12", 7500, 1500, 2250, 13750, 208, 1800);
 
   console.log(`[seed] created sample employee ${employeeCode} - AJEES KHAN M`);
-  void adminUserId; // reserved: will link employees.user_id once Phase 3 login exists
+  void adminUserId;
 }

@@ -1,6 +1,6 @@
 {
   "name": "hr-payroll-software",
-  "version": "0.1.0",
+  "version": "0.4.0",
   "private": true,
   "main": "electron/main.js",
   "description": "Offline-first Windows HRMS + Payroll desktop application",

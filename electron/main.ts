@@ -35,20 +35,12 @@ function startStaticServer(): Promise<void> {
   });
 }
 
-// The packaged app's install folder is read-only (it lives inside an
-// .asar archive), so the SQLite file cannot live there. Electron's
-// userData folder (Windows: %APPDATA%/HR Payroll Software) is the
-// correct writable location for a desktop app's own data. This must
-// run BEFORE the server module is required, since server/src/config/env.ts
-// reads process.env.DB_PATH the moment it is first imported.
 function configureServerEnvironment() {
   const dbPath = path.join(app.getPath("userData"), "hrms.db");
   process.env.DB_PATH = dbPath;
 }
 
 function startBackendServer() {
-  // Compiled server entry point; requiring it runs migrations, seed
-  // data, and app.listen() as a side effect (see server/src/index.ts).
   require(path.join(__dirname, "../server/dist/index.js"));
 }
 

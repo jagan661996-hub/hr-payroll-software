@@ -6,8 +6,8 @@ Each phase is delivered separately and waits for review before the next one star
 |---|---|---|
 | 1 | Project setup: folder structure, configs, draft DB schema, Electron shell, CI build workflow | Done |
 | 2 | Database: migration runner, seed data, repositories per table | Done |
-| 3 | Authentication: Admin/HR/Employee login, JWT sessions, role guards | **Done (this delivery)** |
-| 4 | Employee Module: Employee/Department/Designation/Branch/Shift masters | Not started |
+| 3 | Authentication: Admin/HR/Employee login, JWT sessions, role guards | Done |
+| 4 | Employee Module: Employee/Department/Designation/Branch/Shift masters | **Done (this delivery)** |
 | 5 | Attendance: daily/monthly views, Excel import matching Attendance.xlsx layout, corrections, lock | Not started |
 | 6 | Leave: leave types/balances/requests matching Staff_Leave_Details.xls, approval workflow, calendar | Not started |
 | 7 | Payroll: salary structure editor, monthly run, payslip PDF matching the sample, salary register, bank transfer report | Not started |
@@ -17,5 +17,8 @@ Each phase is delivered separately and waits for review before the next one star
 | 11 | EXE build hardening: code signing, auto-update, release notes | Not started |
 
 ## Known environment constraints
-- The actual signed `.exe` is produced by the `build-windows.yml` GitHub Actions workflow (windows-latest runner), not by Claude locally - this sandbox has no Windows toolchain.
-- Getting the code onto GitHub requires you (or a git-enabled tool like Claude Code) to `git init` / push this folder, since this environment has no GitHub write credentials.
+- The actual signed `.exe` is produced by the `build-windows.yml` GitHub Actions workflow (windows-latest runner), not locally - a Linux dev sandbox has no Windows toolchain.
+- Getting code onto GitHub requires pushing from a git-enabled environment (Codespaces terminal), since a plain browser session has no git write credentials.
+
+## Login
+Default seeded admin account: `admin@industrialfans.local` / `Admin@123`

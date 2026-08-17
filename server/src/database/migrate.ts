@@ -2,12 +2,6 @@ import fs from "fs";
 import path from "path";
 import Database from "better-sqlite3";
 
-// Migrations live in database/migrations at the repo root. Path is
-// computed relative to the compiled bundle's location. Since the
-// server now builds to a single bundled file (server/dist/index.js,
-// see server/package.json's esbuild build script), __dirname here is
-// always "server/dist" at runtime - not a per-source-file path - so
-// this only needs to go up two levels (dist -> server -> repo root).
 const MIGRATIONS_DIR =
   process.env.MIGRATIONS_DIR ?? path.resolve(__dirname, "../../database/migrations");
 
@@ -34,11 +28,10 @@ export function runMigrations(db: Database.Database): void {
   const migrationFiles = fs
     .readdirSync(MIGRATIONS_DIR)
     .filter((f) => f.endsWith(".sql"))
-    .sort(); // filenames are numerically prefixed (001_, 002_...) so sort = run order
+    .sort();
 
   for (const file of migrationFiles) {
     if (alreadyApplied.has(file)) continue;
-
     const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), "utf-8");
     const applyMigration = db.transaction(() => {
       db.exec(sql);

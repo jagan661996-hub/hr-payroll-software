@@ -15,8 +15,6 @@ export function login(email: string, password: string): LoginResult {
   const repo = new UserRepository(getDb());
   const user = repo.findByEmail(email);
 
-  // Same error message whether the email doesn't exist or the
-  // password is wrong - don't leak which one it was.
   if (!user || !user.is_active) {
     throw new AppError(401, "Invalid email or password");
   }

@@ -26,9 +26,6 @@ function loadPersisted(): { token: string; user: AuthUser } | null {
 
 const persisted = loadPersisted();
 
-// This is a real Electron desktop app (not a sandboxed web artifact),
-// so localStorage is the normal, correct place to persist a session
-// token between app launches - equivalent to "stay signed in."
 export const useAuthStore = create<AuthState>((set) => ({
   token: persisted?.token ?? null,
   user: persisted?.user ?? null,

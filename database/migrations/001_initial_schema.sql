@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS designations (
 CREATE TABLE IF NOT EXISTS shifts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
-  start_time TEXT NOT NULL,      -- 'HH:MM'
+  start_time TEXT NOT NULL,
   end_time TEXT NOT NULL,
   grace_minutes INTEGER DEFAULT 10
 );
@@ -50,9 +50,9 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS employees (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  employee_code TEXT NOT NULL UNIQUE,      -- e.g. 'INDF0026'
+  employee_code TEXT NOT NULL UNIQUE,
   user_id INTEGER REFERENCES users(id),
-  full_name TEXT NOT NULL,                 -- e.g. 'AJEES KHAN M'
+  full_name TEXT NOT NULL,
   designation_id INTEGER REFERENCES designations(id),
   department_id INTEGER REFERENCES departments(id),
   branch_id INTEGER REFERENCES branches(id),
@@ -64,7 +64,6 @@ CREATE TABLE IF NOT EXISTS employees (
 );
 
 -- ===================== SALARY STRUCTURE =====================
--- Mirrors the earnings/deductions layout seen in the sample payslip.
 CREATE TABLE IF NOT EXISTS salary_structures (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   employee_id INTEGER NOT NULL REFERENCES employees(id),
@@ -85,13 +84,11 @@ CREATE TABLE IF NOT EXISTS salary_structures (
 );
 
 -- ===================== ATTENDANCE =====================
--- One row per employee per calendar day; matches the P / OD / WFH /
--- Leave day-code grid seen in Attendance.xlsx.
 CREATE TABLE IF NOT EXISTS attendance_daily (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   employee_id INTEGER NOT NULL REFERENCES employees(id),
-  work_date TEXT NOT NULL,                 -- 'YYYY-MM-DD'
-  status_code TEXT NOT NULL,               -- P, A, OD, WFH, HL, WO, HD
+  work_date TEXT NOT NULL,
+  status_code TEXT NOT NULL,
   check_in TEXT,
   check_out TEXT,
   late_minutes INTEGER DEFAULT 0,
@@ -124,7 +121,7 @@ CREATE TABLE IF NOT EXISTS on_duty_requests (
 -- ===================== LEAVE =====================
 CREATE TABLE IF NOT EXISTS leave_types (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL UNIQUE,               -- Casual, Sick, Earned, LOP, Maternity, Paternity, Comp Off
+  name TEXT NOT NULL UNIQUE,
   paid INTEGER DEFAULT 1,
   default_annual_days REAL DEFAULT 0
 );
@@ -154,19 +151,17 @@ CREATE TABLE IF NOT EXISTS leave_requests (
 );
 
 -- ===================== PAYROLL =====================
--- One row per employee per pay period; numbers mirror the payslip PDF
--- (gross earnings, total deductions, net payable, YTD).
 CREATE TABLE IF NOT EXISTS payslips (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   employee_id INTEGER NOT NULL REFERENCES employees(id),
-  pay_period TEXT NOT NULL,                -- 'YYYY-MM'
+  pay_period TEXT NOT NULL,
   pay_date TEXT,
   paid_days REAL NOT NULL,
   lop_days REAL NOT NULL DEFAULT 0,
   gross_earnings REAL NOT NULL,
   total_deductions REAL NOT NULL,
   net_pay REAL NOT NULL,
-  breakdown_json TEXT NOT NULL,             -- serialized earnings/deductions detail
+  breakdown_json TEXT NOT NULL,
   generated_at TEXT DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(employee_id, pay_period)
 );

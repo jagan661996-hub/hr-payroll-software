@@ -12,9 +12,6 @@ export interface Employee {
   created_at: string;
 }
 
-// Shape returned to the client - joined with human-readable names
-// instead of raw foreign keys, since the UI never wants to look up
-// "designation_id: 2" on its own.
 export interface EmployeeWithDetails extends Employee {
   designation_title: string | null;
   department_name: string | null;
