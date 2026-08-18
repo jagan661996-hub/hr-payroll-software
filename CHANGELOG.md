@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.1] - On Duty Module
+- Apply/approve/reject workflow (`POST /api/on-duty`, `PUT /api/on-duty/:id/status`, ADMIN/HR approve), mirroring the Leave module's pattern
+- PDF form generation (`GET /api/on-duty/:id/pdf`) matching the exact layout of the uploaded `ON_DUTY_FORM_INDFANS.doc` - Name/Emp ID/Position/Dept/Date From/To/Purpose plus approval signature lines, pulling designation and department straight from the employee record
+- On Duty page with the same request/approve/reject table pattern as Leave, plus a "Form PDF" download per request
+- Verified end-to-end (apply, approve, double-approval rejection, PDF download, reject workflow) and visually reviewed the generated PDF against the real uploaded form before shipping
+
 ## [0.7.0] - Phase 7: Payroll
 - Salary structure editor (`GET`/`PUT /api/payroll/structure/:employeeId`, ADMIN/HR only) - HR edits Basic/DA/HRA/allowances and deductions per employee without touching code
 - Monthly payroll run (`POST /api/payroll/run`): computes every active employee's payslip for a given month, prorating earnings against attendance (absent days and half-days reduce paid days; a clean month is paid in full), and reports which employees were skipped for missing a salary structure

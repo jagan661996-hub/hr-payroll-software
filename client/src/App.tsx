@@ -6,10 +6,11 @@ import EmployeesPage from "./pages/EmployeesPage";
 import AttendancePage from "./pages/AttendancePage";
 import LeavePage from "./pages/LeavePage";
 import PayrollPage from "./pages/PayrollPage";
+import OnDutyPage from "./pages/OnDutyPage";
 import RequireAuth from "./components/RequireAuth";
 
-// Phase 7 adds a real Payroll page. Documents/Reports/Settings pages
-// land in their own phases per docs/ROADMAP.md.
+// Adds a real On Duty page. Documents/Reports/Settings pages land in
+// their own phases per docs/ROADMAP.md.
 export default function App() {
   return (
     <Routes>
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="leave" element={<LeavePage />} />
           <Route path="payroll" element={<PayrollPage />} />
+          <Route path="on-duty" element={<OnDutyPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
