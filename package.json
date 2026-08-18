@@ -28,7 +28,8 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
-    "better-sqlite3": "^11.1.2"
+    "better-sqlite3": "^11.1.2",
+    "pdfkit": "^0.15.0"
   },
   "build": {
     "appId": "com.industrialfans.hrpayroll",

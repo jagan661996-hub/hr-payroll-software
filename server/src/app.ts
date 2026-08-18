@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.routes";
 import metaRoutes from "./routes/meta.routes";
 import attendanceRoutes from "./routes/attendance.routes";
 import leaveRoutes from "./routes/leave.routes";
+import payrollRoutes from "./routes/payroll.routes";
 import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
@@ -22,6 +23,7 @@ export function createApp() {
   app.use("/api/meta", metaRoutes);
   app.use("/api/attendance", attendanceRoutes);
   app.use("/api/leave", leaveRoutes);
+  app.use("/api/payroll", payrollRoutes);
 
   app.use(errorHandler);
 

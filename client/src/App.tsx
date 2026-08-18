@@ -5,10 +5,11 @@ import DashboardHome from "./pages/DashboardHome";
 import EmployeesPage from "./pages/EmployeesPage";
 import AttendancePage from "./pages/AttendancePage";
 import LeavePage from "./pages/LeavePage";
+import PayrollPage from "./pages/PayrollPage";
 import RequireAuth from "./components/RequireAuth";
 
-// Phase 6 adds a real Leave page. Payroll pages land in their own
-// phase per docs/ROADMAP.md.
+// Phase 7 adds a real Payroll page. Documents/Reports/Settings pages
+// land in their own phases per docs/ROADMAP.md.
 export default function App() {
   return (
     <Routes>
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="leave" element={<LeavePage />} />
+          <Route path="payroll" element={<PayrollPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -7,7 +7,7 @@ const NAV_ITEMS: { label: string; path?: string }[] = [
   { label: "Attendance", path: "/attendance" },
   { label: "Leave", path: "/leave" },
   { label: "On Duty" },
-  { label: "Payroll" },
+  { label: "Payroll", path: "/payroll" },
   { label: "Documents" },
   { label: "Reports" },
   { label: "Settings" }

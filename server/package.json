@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=cjs --external:better-sqlite3 --outfile=dist/index.js",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node18 --format=cjs --external:better-sqlite3 --external:pdfkit --outfile=dist/index.js",
     "start": "node dist/index.js"
   },
   "dependencies": {
@@ -33,6 +33,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/morgan": "^1.9.9",
     "@types/better-sqlite3": "^7.6.11",
-    "@types/multer": "^1.4.11"
+    "@types/multer": "^1.4.11",
+    "@types/pdfkit": "^0.13.4"
   }
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0] - Phase 7: Payroll
+- Salary structure editor (`GET`/`PUT /api/payroll/structure/:employeeId`, ADMIN/HR only) - HR edits Basic/DA/HRA/allowances and deductions per employee without touching code
+- Monthly payroll run (`POST /api/payroll/run`): computes every active employee's payslip for a given month, prorating earnings against attendance (absent days and half-days reduce paid days; a clean month is paid in full), and reports which employees were skipped for missing a salary structure
+- Payslip PDF generation (`GET /api/payroll/payslips/:id/pdf`) styled after the original sample payslip, including a proper Indian-numbering ("Twenty-Two Thousand Nine Hundred Ninety-Two Only") amount-in-words line and a year-to-date column computed from the Indian financial year (April-March)
+- **Verified the payroll math against your real payslip**: ran payroll for the seeded sample employee (whose salary structure already matches `Payslip_INDF0026_Jul_2025.pdf` exactly) and confirmed the computed Gross (Rs. 25,000.00), Deductions (Rs. 2,008.00), and Net Pay (Rs. 22,992.00) match the real document exactly, before shipping
+- Fixed a packaging bug caught during testing: `pdfkit` needs to read its own bundled font-metric files using a real file path, which the single-file server bundle broke (same class of issue as the earlier `better-sqlite3` fix) - `pdfkit` is now kept as a separate real module in the package, like the database driver
+- Payroll page: month navigation, "Run Payroll" button, payslip table with PDF download per employee, and a Salary Structures section for editing each employee's pay configuration
+
 ## [0.6.0] - Phase 6: Leave
 - Leave request workflow: `POST /api/leave` (apply), `PUT /api/leave/:id/status` (approve/reject, ADMIN/HR only) - approving a request automatically updates that employee's leave balance
 - Leave balances (`GET /api/leave/balances?year=`) auto-create with each leave type's default annual allowance the first time they're touched
