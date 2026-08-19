@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.1] - Documents Module
+- Appointment Letter generation (`GET /api/documents/appointment-letter/:employeeId`, ADMIN/HR only) - a real, editable `.docx` file built with the `docx` library, using the full company terms transcribed from the uploaded `Appointment_Letter_K_Nandhakumar_print.docx` template
+- Header fields (name, position, department, branch, date of joining) and the salary annexure table are personalized per employee, pulled live from their actual record and salary structure; the 14 standard legal clauses stay identical for everyone, matching how the real template works
+- Documents page: pick an employee, generate and download their appointment letter; Confirmation/Experience/Relieving letters are shown as clearly-marked "coming in a later phase" placeholders rather than looking broken
+- Verified the generated file is a genuinely valid, openable `.docx` (correct zip/XML structure) and visually reviewed the rendered output (converted to PDF) to confirm formatting and that real employee data flows through correctly
+
 ## [0.8.0] - Phase 8: Reports & Live Dashboard
 - Dashboard's four summary cards ("Present Today," "On Leave," "Late Coming," "Pending Approvals") are finally wired to real data instead of the "--" placeholders they've shown since Phase 1
 - Added two Dashboard charts: employees by department (doughnut) and attendance percentage over the last 6 months (bar), plus a payroll expense trend chart (line)
