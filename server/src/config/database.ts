@@ -14,3 +14,14 @@ export function getDb(): Database.Database {
   db.pragma("foreign_keys = ON");
   return db;
 }
+
+// Used only by the Settings > Restore Backup flow: flush any pending
+// WAL writes to the main file, close the connection, and clear the
+// singleton so the next getDb() call reopens fresh against whatever
+// file is on disk (which the restore handler will have just replaced).
+export function checkpointAndCloseDb(): void {
+  if (!db) return;
+  db.pragma("wal_checkpoint(FULL)");
+  db.close();
+  db = null;
+}

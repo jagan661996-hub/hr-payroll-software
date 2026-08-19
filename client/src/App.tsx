@@ -9,10 +9,11 @@ import PayrollPage from "./pages/PayrollPage";
 import OnDutyPage from "./pages/OnDutyPage";
 import ReportsPage from "./pages/ReportsPage";
 import DocumentsPage from "./pages/DocumentsPage";
+import SettingsPage from "./pages/SettingsPage";
 import RequireAuth from "./components/RequireAuth";
 
-// Adds a real Documents page. Settings lands in its own phase per
-// docs/ROADMAP.md.
+// Phase 9: Settings. This completes the original module roadmap -
+// every sidebar item is now a real page.
 export default function App() {
   return (
     <Routes>
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="on-duty" element={<OnDutyPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="documents" element={<DocumentsPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

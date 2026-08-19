@@ -10,7 +10,7 @@ const NAV_ITEMS: { label: string; path?: string }[] = [
   { label: "Payroll", path: "/payroll" },
   { label: "Documents", path: "/documents" },
   { label: "Reports", path: "/reports" },
-  { label: "Settings" }
+  { label: "Settings", path: "/settings" }
 ];
 
 export default function DashboardLayout() {

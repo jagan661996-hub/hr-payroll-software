@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.0] - Phase 9: Settings
+- Migration 002 adds `company_settings` (single-row config: name, address, financial year start month) - proves the migration system genuinely supports incremental schema changes, not just the initial setup
+- Company tab: edit company name/address/financial year start month without touching code
+- Users tab: Admins can create HR/Employee logins directly (previously only the one seeded admin account existed) - new accounts are immediately usable for login
+- Backup & Restore: download a complete copy of the live database file at any time; restore replaces all data from a previously downloaded backup, with a confirmation prompt and validation that the uploaded file is genuinely a SQLite database before touching anything
+- Audit Log: the `audit_logs` table has existed in the schema since Phase 1 but nothing ever wrote to it - now login, employee create/update, salary structure changes, payroll runs, company settings changes, user creation, and backup/restore are all recorded with who did what and when
+- **Verified the riskiest part directly**: downloaded a real backup, restored it back into the running server, and confirmed via a fresh API call that all data - including a record created moments before the backup - survived the round-trip intact
+- Full regression pass across every other module (Employees, Payroll, On Duty, Documents) confirmed nothing broke
+
 ## [0.8.1] - Documents Module
 - Appointment Letter generation (`GET /api/documents/appointment-letter/:employeeId`, ADMIN/HR only) - a real, editable `.docx` file built with the `docx` library, using the full company terms transcribed from the uploaded `Appointment_Letter_K_Nandhakumar_print.docx` template
 - Header fields (name, position, department, branch, date of joining) and the salary annexure table are personalized per employee, pulled live from their actual record and salary structure; the 14 standard legal clauses stay identical for everyone, matching how the real template works

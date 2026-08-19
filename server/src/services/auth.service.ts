@@ -5,6 +5,7 @@ import { env } from "../config/env";
 import { UserRepository } from "../repositories/user.repository";
 import { AuthUser } from "../models/user.model";
 import { AppError } from "../middleware/errorHandler";
+import { logAudit } from "./auditLog.service";
 
 export interface LoginResult {
   token: string;
@@ -12,7 +13,8 @@ export interface LoginResult {
 }
 
 export function login(email: string, password: string): LoginResult {
-  const repo = new UserRepository(getDb());
+  const db = getDb();
+  const repo = new UserRepository(db);
   const user = repo.findByEmail(email);
 
   if (!user || !user.is_active) {
@@ -28,6 +30,8 @@ export function login(email: string, password: string): LoginResult {
   const token = jwt.sign(authUser, env.jwtSecret, {
     expiresIn: env.jwtExpiresIn
   } as jwt.SignOptions);
+
+  logAudit(db, user.id, "LOGIN", "users", user.id);
 
   return { token, user: authUser };
 }

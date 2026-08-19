@@ -8,6 +8,7 @@ import { PayslipRepository } from "../repositories/payslip.repository";
 import { calculatePayroll } from "../services/payrollCalculation.service";
 import { generatePayslipPdf } from "../services/payslipPdf.service";
 import { AppError } from "../middleware/errorHandler";
+import { logAudit } from "../services/auditLog.service";
 
 export function getSalaryStructure(req: Request, res: Response) {
   const employeeId = Number(req.params.employeeId);
@@ -105,6 +106,12 @@ export function runPayroll(req: Request, res: Response, next: NextFunction) {
     }
 
     res.json({ payPeriod, processed, skipped });
+
+    logAudit(db, req.user!.id, "RUN_PAYROLL", "payslips", undefined, {
+      payPeriod,
+      processedCount: processed.length,
+      skippedCount: skipped.length
+    });
   } catch (err) {
     if (err instanceof z.ZodError) {
       return next(new AppError(400, "year and month are required"));

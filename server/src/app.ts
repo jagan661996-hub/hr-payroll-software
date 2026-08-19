@@ -12,6 +12,7 @@ import onDutyRoutes from "./routes/onDuty.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import reportRoutes from "./routes/report.routes";
 import documentRoutes from "./routes/document.routes";
+import settingsRoutes from "./routes/settings.routes";
 import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
@@ -32,6 +33,7 @@ export function createApp() {
   app.use("/api/dashboard", dashboardRoutes);
   app.use("/api/reports", reportRoutes);
   app.use("/api/documents", documentRoutes);
+  app.use("/api/settings", settingsRoutes);
 
   app.use(errorHandler);
 

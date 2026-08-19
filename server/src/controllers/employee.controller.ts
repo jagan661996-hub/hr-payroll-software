@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getDb } from "../config/database";
 import { EmployeeRepository } from "../repositories/employee.repository";
 import { AppError } from "../middleware/errorHandler";
+import { logAudit } from "../services/auditLog.service";
 
 const employeeSchema = z.object({
   employee_code: z.string().min(1, "Employee code is required"),
@@ -28,13 +29,18 @@ export function getEmployeeSummary(_req: Request, res: Response) {
 export function createEmployee(req: Request, res: Response, next: NextFunction) {
   try {
     const data = employeeSchema.parse(req.body);
-    const repo = new EmployeeRepository(getDb());
+    const db = getDb();
+    const repo = new EmployeeRepository(db);
 
     if (repo.findByCode(data.employee_code)) {
       throw new AppError(409, `Employee code "${data.employee_code}" is already in use`);
     }
 
     const id = repo.create(data);
+    logAudit(db, req.user!.id, "CREATE_EMPLOYEE", "employees", id, {
+      employee_code: data.employee_code,
+      full_name: data.full_name
+    });
     res.status(201).json(repo.findById(id));
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -48,7 +54,8 @@ export function updateEmployee(req: Request, res: Response, next: NextFunction) 
   try {
     const id = Number(req.params.id);
     const data = employeeSchema.parse(req.body);
-    const repo = new EmployeeRepository(getDb());
+    const db = getDb();
+    const repo = new EmployeeRepository(db);
 
     const existing = repo.findById(id);
     if (!existing) {
@@ -61,6 +68,10 @@ export function updateEmployee(req: Request, res: Response, next: NextFunction) 
     }
 
     repo.update(id, data);
+    logAudit(db, req.user!.id, "UPDATE_EMPLOYEE", "employees", id, {
+      employee_code: data.employee_code,
+      status: data.status
+    });
     res.json(repo.findById(id));
   } catch (err) {
     if (err instanceof z.ZodError) {

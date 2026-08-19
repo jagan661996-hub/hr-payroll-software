@@ -13,8 +13,8 @@ Each phase is delivered separately and waits for review before the next one star
 | 7 | Payroll: salary structure editor, monthly run, payslip PDF matching the sample, salary register, bank transfer report | Done |
 | 7b | On Duty: apply/approve/reject workflow, PDF form matching ON_DUTY_FORM_INDFANS.doc | Done |
 | 8 | Reports: PF/ESI dashboards, charts, salary register export, live Dashboard cards | Done |
-| 8b | Documents: Appointment Letter DOCX matching the uploaded template, salary annexure | **Done (this delivery)** |
-| 9 | Settings: company/financial year/policies, backup/restore, audit logs, roles | Not started |
+| 8b | Documents: Appointment Letter DOCX matching the uploaded template, salary annexure | Done |
+| 9 | Settings: company/financial year/policies, backup/restore, audit logs, roles | **Done (this delivery)** |
 | 10 | Testing | Not started |
 | 11 | EXE build hardening: code signing, auto-update, release notes | Not started |
 
