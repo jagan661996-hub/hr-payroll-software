@@ -9,6 +9,8 @@ import attendanceRoutes from "./routes/attendance.routes";
 import leaveRoutes from "./routes/leave.routes";
 import payrollRoutes from "./routes/payroll.routes";
 import onDutyRoutes from "./routes/onDuty.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
+import reportRoutes from "./routes/report.routes";
 import { errorHandler } from "./middleware/errorHandler";
 
 export function createApp() {
@@ -26,6 +28,8 @@ export function createApp() {
   app.use("/api/leave", leaveRoutes);
   app.use("/api/payroll", payrollRoutes);
   app.use("/api/on-duty", onDutyRoutes);
+  app.use("/api/dashboard", dashboardRoutes);
+  app.use("/api/reports", reportRoutes);
 
   app.use(errorHandler);
 

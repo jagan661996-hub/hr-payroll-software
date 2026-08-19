@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0] - Phase 8: Reports & Live Dashboard
+- Dashboard's four summary cards ("Present Today," "On Leave," "Late Coming," "Pending Approvals") are finally wired to real data instead of the "--" placeholders they've shown since Phase 1
+- Added two Dashboard charts: employees by department (doughnut) and attendance percentage over the last 6 months (bar), plus a payroll expense trend chart (line)
+- New Reports page (Admin/HR only) with three tabs: Salary Register, PF, and ESI, each for a selected month
+- Excel export for the salary register (`GET /api/reports/salary-register/export`) using the same `xlsx` library already used for attendance/leave imports
+- Verified PF report numbers against the real payslip data again (EPF contribution of Rs. 1,800 for the sample employee matches exactly), plus a full regression pass across every earlier module (Employees, Attendance, Leave, On Duty) before shipping
+
 ## [0.7.1] - On Duty Module
 - Apply/approve/reject workflow (`POST /api/on-duty`, `PUT /api/on-duty/:id/status`, ADMIN/HR approve), mirroring the Leave module's pattern
 - PDF form generation (`GET /api/on-duty/:id/pdf`) matching the exact layout of the uploaded `ON_DUTY_FORM_INDFANS.doc` - Name/Emp ID/Position/Dept/Date From/To/Purpose plus approval signature lines, pulling designation and department straight from the employee record

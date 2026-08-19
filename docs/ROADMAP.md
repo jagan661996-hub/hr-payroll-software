@@ -11,8 +11,8 @@ Each phase is delivered separately and waits for review before the next one star
 | 5 | Attendance: daily/monthly views, Excel import matching Attendance.xlsx layout, corrections, lock | Done |
 | 6 | Leave: leave types/balances/requests matching Staff_Leave_Details.xls, approval workflow, calendar | Done |
 | 7 | Payroll: salary structure editor, monthly run, payslip PDF matching the sample, salary register, bank transfer report | Done |
-| 7b | On Duty: apply/approve/reject workflow, PDF form matching ON_DUTY_FORM_INDFANS.doc | **Done (this delivery)** |
-| 8 | Reports: PF/ESI/Form 16 data, dashboards, charts | Not started |
+| 7b | On Duty: apply/approve/reject workflow, PDF form matching ON_DUTY_FORM_INDFANS.doc | Done |
+| 8 | Reports: PF/ESI dashboards, charts, salary register export, live Dashboard cards | **Done (this delivery)** |
 | 9 | Settings: company/financial year/policies, backup/restore, audit logs, roles | Not started |
 | 10 | Testing | Not started |
 | 11 | EXE build hardening: code signing, auto-update, release notes | Not started |
