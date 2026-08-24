@@ -14,7 +14,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install all workspace dependencies
         run: npm install
@@ -37,3 +37,4 @@ jobs:
         with:
           name: HRPayrollSetup
           path: installer/dist/*.exe
+          retention-days: 3
