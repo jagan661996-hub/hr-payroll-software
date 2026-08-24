@@ -8,11 +8,28 @@ import { logAudit } from "../services/auditLog.service";
 const employeeSchema = z.object({
   employee_code: z.string().min(1, "Employee code is required"),
   full_name: z.string().min(1, "Full name is required"),
+  first_name: z.string().nullable().optional().default(null),
+  middle_name: z.string().nullable().optional().default(null),
+  last_name: z.string().nullable().optional().default(null),
+  date_of_birth: z.string().nullable().optional().default(null),
+  gender: z.string().nullable().optional().default(null),
+  marital_status: z.string().nullable().optional().default(null),
+  blood_group: z.string().nullable().optional().default(null),
+  nationality: z.string().nullable().optional().default(null),
   designation_id: z.number().nullable().optional().default(null),
   department_id: z.number().nullable().optional().default(null),
   branch_id: z.number().nullable().optional().default(null),
   shift_id: z.number().nullable().optional().default(null),
   date_of_joining: z.string().min(1, "Date of joining is required"),
+  date_of_confirmation: z.string().nullable().optional().default(null),
+  employment_type: z.string().nullable().optional().default(null),
+  reporting_manager_id: z.number().nullable().optional().default(null),
+  work_location: z.string().nullable().optional().default(null),
+  grade: z.string().nullable().optional().default(null),
+  cost_center: z.string().nullable().optional().default(null),
+  employee_category: z.string().nullable().optional().default(null),
+  probation_end_date: z.string().nullable().optional().default(null),
+  notice_period_days: z.number().nullable().optional().default(null),
   status: z.enum(["ACTIVE", "RESIGNED", "TERMINATED"]).optional().default("ACTIVE")
 });
 

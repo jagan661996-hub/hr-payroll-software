@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.9.1] - Employee Profile Expansion (9 Sections)
+- Migration 003: extends `employees` with Basic/Work Information fields (name parts, DOB, gender, marital status, blood group, nationality, reporting manager, grade, cost center, probation/notice period, etc.) and adds 9 new tables - Personal Details, Identity, Office Contact, Emergency Contacts, Work Experience, Education, Dependents, Exit Details, Documents
+- Employees page now links to a full Employee Profile page (`/employees/:id`) with a sidebar covering all 9 sections and a header showing photo initials, name, ID, designation, department, join date, and status
+- **Identity masking**: PAN, Aadhaar, passport, driving licence, voter ID, and UAN are stored in full but only ADMIN accounts see the real values - everyone else sees them masked (e.g. `XXXXX1234X` for PAN, `XXXX XXXX 1234` for Aadhaar), matching the exact format requested. HR/Admin can still edit these fields even without seeing the previous value again.
+- Work Experience auto-calculates total months from date joined/left; validates date order (date left can't precede date joined) on both experience entries and exit details (last working date can't precede resignation date)
+- Exit Details section is blocked from being saved while an employee's status is Active, and unlocks once their status changes to Resigned/Terminated
+- Document upload/download/delete per employee, categorized (Identity/Education/Experience/Appointment Letter/etc.), stored outside the app package the same way the database is, so they survive updates and reinstalls
+- All new writes (personal details, identity, exit details) are recorded in the audit log - identity audit entries deliberately never include the actual sensitive values, only the fact that a change was made
+- **Verified with an 18-step test covering every section**: empty-state profile, personal details with server-side address-copy logic, identity save/mask-as-admin/mask-as-HR (caught and fixed a masking bug against the spec's own example along the way), emergency contacts CRUD, experience with auto-calculated months and date-order validation, education, dependents with nominee fields, exit details gating and date validation, and document upload/download with byte-for-byte content verification
+- Full regression pass across all 9 previously-shipped modules confirmed nothing broke, plus a clean packaging dry-run
+
 ## [0.9.0] - Phase 9: Settings
 - Migration 002 adds `company_settings` (single-row config: name, address, financial year start month) - proves the migration system genuinely supports incremental schema changes, not just the initial setup
 - Company tab: edit company name/address/financial year start month without touching code

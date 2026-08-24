@@ -3,6 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import EmployeesPage from "./pages/EmployeesPage";
+import EmployeeProfilePage from "./pages/EmployeeProfilePage";
 import AttendancePage from "./pages/AttendancePage";
 import LeavePage from "./pages/LeavePage";
 import PayrollPage from "./pages/PayrollPage";
@@ -12,8 +13,9 @@ import DocumentsPage from "./pages/DocumentsPage";
 import SettingsPage from "./pages/SettingsPage";
 import RequireAuth from "./components/RequireAuth";
 
-// Phase 9: Settings. This completes the original module roadmap -
-// every sidebar item is now a real page.
+// Full Employee Profile module: /employees/:id now shows the 9-section
+// profile (Basic/Work/Personal/Identity/Contact/Experience/Education/
+// Dependents/Exit) instead of just the quick add/edit modal.
 export default function App() {
   return (
     <Routes>
@@ -22,6 +24,7 @@ export default function App() {
         <Route path="/" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
           <Route path="employees" element={<EmployeesPage />} />
+          <Route path="employees/:id" element={<EmployeeProfilePage />} />
           <Route path="attendance" element={<AttendancePage />} />
           <Route path="leave" element={<LeavePage />} />
           <Route path="payroll" element={<PayrollPage />} />

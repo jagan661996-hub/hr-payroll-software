@@ -38,6 +38,7 @@ function startStaticServer(): Promise<void> {
 function configureServerEnvironment() {
   const dbPath = path.join(app.getPath("userData"), "hrms.db");
   process.env.DB_PATH = dbPath;
+  process.env.UPLOADS_DIR = path.join(app.getPath("userData"), "uploads", "employee-documents");
 }
 
 function startBackendServer() {

@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import healthRoutes from "./routes/health.routes";
 import employeeRoutes from "./routes/employee.routes";
+import employeeProfileRoutes from "./routes/employeeProfile.routes";
 import authRoutes from "./routes/auth.routes";
 import metaRoutes from "./routes/meta.routes";
 import attendanceRoutes from "./routes/attendance.routes";
@@ -25,6 +26,7 @@ export function createApp() {
   app.use("/api/health", healthRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/employees", employeeRoutes);
+  app.use("/api/employees", employeeProfileRoutes);
   app.use("/api/meta", metaRoutes);
   app.use("/api/attendance", attendanceRoutes);
   app.use("/api/leave", leaveRoutes);

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { api } from "../services/api";
 import { Employee, MetaData } from "../types/employee";
 import EmployeeFormModal from "../components/EmployeeFormModal";
@@ -91,7 +92,7 @@ export default function EmployeesPage() {
                 <th className="text-left px-4 py-3 font-medium">Branch</th>
                 <th className="text-left px-4 py-3 font-medium">Joined</th>
                 <th className="text-left px-4 py-3 font-medium">Status</th>
-                {canEdit && <th className="text-right px-4 py-3 font-medium">Actions</th>}
+                <th className="text-right px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -105,7 +106,11 @@ export default function EmployeesPage() {
               {employees.map((emp) => (
                 <tr key={emp.id} className="border-t border-slate-100">
                   <td className="px-4 py-3 text-slate-700">{emp.employee_code}</td>
-                  <td className="px-4 py-3 text-slate-900 font-medium">{emp.full_name}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <Link to={`/employees/${emp.id}`} className="text-brand-600 hover:text-brand-800">
+                      {emp.full_name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3 text-slate-600">{emp.designation_title ?? "—"}</td>
                   <td className="px-4 py-3 text-slate-600">{emp.department_name ?? "—"}</td>
                   <td className="px-4 py-3 text-slate-600">{emp.branch_name ?? "—"}</td>
@@ -117,16 +122,19 @@ export default function EmployeesPage() {
                       {emp.status}
                     </span>
                   </td>
-                  {canEdit && (
-                    <td className="px-4 py-3 text-right">
+                  <td className="px-4 py-3 text-right space-x-3">
+                    <Link to={`/employees/${emp.id}`} className="text-brand-600 hover:text-brand-800 font-medium">
+                      View Profile
+                    </Link>
+                    {canEdit && (
                       <button
                         onClick={() => openEditModal(emp)}
-                        className="text-brand-600 hover:text-brand-800 font-medium"
+                        className="text-slate-600 hover:text-slate-800 font-medium"
                       >
-                        Edit
+                        Quick Edit
                       </button>
-                    </td>
-                  )}
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
