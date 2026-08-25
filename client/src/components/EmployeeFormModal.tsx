@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Employee, MetaData } from "../types/employee";
 import { api } from "../services/api";
+import AddMasterValueModal from "./AddMasterValueModal";
 
 interface Props {
   meta: MetaData;
@@ -20,10 +21,14 @@ const emptyForm = {
   status: "ACTIVE" as Employee["status"]
 };
 
-export default function EmployeeFormModal({ meta, employee, onClose, onSaved }: Props) {
+type AddingType = "department" | "designation" | "branch" | "shift" | null;
+
+export default function EmployeeFormModal({ meta: initialMeta, employee, onClose, onSaved }: Props) {
+  const [meta, setMeta] = useState(initialMeta);
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [adding, setAdding] = useState<AddingType>(null);
 
   useEffect(() => {
     if (employee) {
@@ -75,6 +80,26 @@ export default function EmployeeFormModal({ meta, employee, onClose, onSaved }: 
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleMasterCreated(value: { id: number; label: string }) {
+    if (adding === "department") {
+      setMeta({ ...meta, departments: [...meta.departments, { id: value.id, name: value.label }] });
+      setForm({ ...form, department_id: value.id });
+    } else if (adding === "designation") {
+      setMeta({
+        ...meta,
+        designations: [...meta.designations, { id: value.id, title: value.label }]
+      });
+      setForm({ ...form, designation_id: value.id });
+    } else if (adding === "branch") {
+      setMeta({ ...meta, branches: [...meta.branches, { id: value.id, name: value.label }] });
+      setForm({ ...form, branch_id: value.id });
+    } else if (adding === "shift") {
+      setMeta({ ...meta, shifts: [...meta.shifts, { id: value.id, name: value.label }] });
+      setForm({ ...form, shift_id: value.id });
+    }
+    setAdding(null);
   }
 
   return (
@@ -131,9 +156,16 @@ export default function EmployeeFormModal({ meta, employee, onClose, onSaved }: 
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Designation
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-slate-700">Designation</label>
+                <button
+                  type="button"
+                  onClick={() => setAdding("designation")}
+                  className="text-xs text-brand-600 hover:text-brand-800 font-medium"
+                >
+                  + New
+                </button>
+              </div>
               <select
                 value={form.designation_id}
                 onChange={(e) => setForm({ ...form, designation_id: e.target.value })}
@@ -148,7 +180,16 @@ export default function EmployeeFormModal({ meta, employee, onClose, onSaved }: 
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Department</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-slate-700">Department</label>
+                <button
+                  type="button"
+                  onClick={() => setAdding("department")}
+                  className="text-xs text-brand-600 hover:text-brand-800 font-medium"
+                >
+                  + New
+                </button>
+              </div>
               <select
                 value={form.department_id}
                 onChange={(e) => setForm({ ...form, department_id: e.target.value })}
@@ -166,7 +207,16 @@ export default function EmployeeFormModal({ meta, employee, onClose, onSaved }: 
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Branch</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-slate-700">Branch</label>
+                <button
+                  type="button"
+                  onClick={() => setAdding("branch")}
+                  className="text-xs text-brand-600 hover:text-brand-800 font-medium"
+                >
+                  + New
+                </button>
+              </div>
               <select
                 value={form.branch_id}
                 onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
@@ -181,7 +231,16 @@ export default function EmployeeFormModal({ meta, employee, onClose, onSaved }: 
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Shift</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-slate-700">Shift</label>
+                <button
+                  type="button"
+                  onClick={() => setAdding("shift")}
+                  className="text-xs text-brand-600 hover:text-brand-800 font-medium"
+                >
+                  + New
+                </button>
+              </div>
               <select
                 value={form.shift_id}
                 onChange={(e) => setForm({ ...form, shift_id: e.target.value })}
@@ -232,6 +291,14 @@ export default function EmployeeFormModal({ meta, employee, onClose, onSaved }: 
           </div>
         </form>
       </div>
+
+      {adding && (
+        <AddMasterValueModal
+          type={adding}
+          onClose={() => setAdding(null)}
+          onCreated={handleMasterCreated}
+        />
+      )}
     </div>
   );
 }

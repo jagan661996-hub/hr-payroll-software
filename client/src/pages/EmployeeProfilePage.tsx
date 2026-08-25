@@ -14,6 +14,7 @@ import {
   ExitDetails
 } from "../types/employeeProfile";
 import { Employee, MetaData } from "../types/employee";
+import AddMasterValueModal from "../components/AddMasterValueModal";
 
 const SECTIONS = [
   "Basic Information",
@@ -36,6 +37,39 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return (
     <div>
       <label className={labelCls}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+// Same as Field, but with a small "+ New" link for master-data
+// dropdowns (Department/Designation/Branch/Shift) so HR isn't stuck
+// only with whatever was seeded at setup.
+function FieldWithAction({
+  label,
+  canEdit,
+  onAdd,
+  children
+}: {
+  label: string;
+  canEdit: boolean;
+  onAdd: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label className={labelCls + " mb-0"}>{label}</label>
+        {canEdit && (
+          <button
+            type="button"
+            onClick={onAdd}
+            className="text-xs text-brand-600 hover:text-brand-800 font-medium"
+          >
+            + New
+          </button>
+        )}
+      </div>
       {children}
     </div>
   );
@@ -453,7 +487,7 @@ function BasicInfoSection({
 
 function WorkInfoSection({
   employee,
-  meta,
+  meta: initialMeta,
   allEmployees,
   canEdit,
   onSaved
@@ -464,6 +498,10 @@ function WorkInfoSection({
   canEdit: boolean;
   onSaved: () => void;
 }) {
+  const [meta, setMeta] = useState(initialMeta);
+  const [adding, setAdding] = useState<"department" | "designation" | "branch" | "shift" | null>(
+    null
+  );
   const [form, setForm] = useState({
     date_of_joining: employee.date_of_joining,
     date_of_confirmation: employee.date_of_confirmation ?? "",
@@ -486,6 +524,26 @@ function WorkInfoSection({
 
   function toNullableId(v: string | number) {
     return v === "" ? null : Number(v);
+  }
+
+  function handleMasterCreated(value: { id: number; label: string }) {
+    if (adding === "department") {
+      setMeta({ ...meta, departments: [...meta.departments, { id: value.id, name: value.label }] });
+      setForm({ ...form, department_id: value.id });
+    } else if (adding === "designation") {
+      setMeta({
+        ...meta,
+        designations: [...meta.designations, { id: value.id, title: value.label }]
+      });
+      setForm({ ...form, designation_id: value.id });
+    } else if (adding === "branch") {
+      setMeta({ ...meta, branches: [...meta.branches, { id: value.id, name: value.label }] });
+      setForm({ ...form, branch_id: value.id });
+    } else if (adding === "shift") {
+      setMeta({ ...meta, shifts: [...meta.shifts, { id: value.id, name: value.label }] });
+      setForm({ ...form, shift_id: value.id });
+    }
+    setAdding(null);
   }
 
   async function handleSave() {
@@ -558,7 +616,11 @@ function WorkInfoSection({
             <option>Intern</option>
           </select>
         </Field>
-        <Field label="Department">
+        <FieldWithAction
+          label="Department"
+          canEdit={canEdit}
+          onAdd={() => setAdding("department")}
+        >
           <select
             disabled={!canEdit}
             value={form.department_id}
@@ -572,8 +634,12 @@ function WorkInfoSection({
               </option>
             ))}
           </select>
-        </Field>
-        <Field label="Designation">
+        </FieldWithAction>
+        <FieldWithAction
+          label="Designation"
+          canEdit={canEdit}
+          onAdd={() => setAdding("designation")}
+        >
           <select
             disabled={!canEdit}
             value={form.designation_id}
@@ -587,7 +653,7 @@ function WorkInfoSection({
               </option>
             ))}
           </select>
-        </Field>
+        </FieldWithAction>
         <Field label="Reporting Manager">
           <select
             disabled={!canEdit}
@@ -605,7 +671,7 @@ function WorkInfoSection({
               ))}
           </select>
         </Field>
-        <Field label="Branch / Location">
+        <FieldWithAction label="Branch / Location" canEdit={canEdit} onAdd={() => setAdding("branch")}>
           <select
             disabled={!canEdit}
             value={form.branch_id}
@@ -619,7 +685,7 @@ function WorkInfoSection({
               </option>
             ))}
           </select>
-        </Field>
+        </FieldWithAction>
         <Field label="Work Location">
           <input
             disabled={!canEdit}
@@ -636,7 +702,7 @@ function WorkInfoSection({
             className={inputCls}
           />
         </Field>
-        <Field label="Shift">
+        <FieldWithAction label="Shift" canEdit={canEdit} onAdd={() => setAdding("shift")}>
           <select
             disabled={!canEdit}
             value={form.shift_id}
@@ -650,7 +716,7 @@ function WorkInfoSection({
               </option>
             ))}
           </select>
-        </Field>
+        </FieldWithAction>
         <Field label="Probation End Date">
           <input
             disabled={!canEdit}
@@ -688,6 +754,13 @@ function WorkInfoSection({
         </Field>
       </div>
       {canEdit && <SaveBar onSave={handleSave} saving={saving} message={message} />}
+      {adding && (
+        <AddMasterValueModal
+          type={adding}
+          onClose={() => setAdding(null)}
+          onCreated={handleMasterCreated}
+        />
+      )}
     </div>
   );
 }

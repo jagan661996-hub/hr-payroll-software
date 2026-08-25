@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.2] - Master Data: Add New Department/Designation/Branch/Shift Inline
+- Departments, Designations, Branches, and Shifts were previously fixed to whatever the initial seed data had - no way to add more without editing the database directly
+- Added `POST /api/meta/departments`, `/designations`, `/branches`, `/shifts` (ADMIN/HR only), each rejecting case-insensitive duplicates with a clear message
+- A "+ New" link now sits next to Designation/Department/Branch/Shift in both the Add/Quick-Edit Employee form and the Work Information tab of the full Employee Profile - opens a small popup to add a new value, which is immediately selected without needing to close and reopen the form
+- New master values are recorded in the audit log
+- Verified with a 10-step test: create each of the four types, confirm duplicate rejection (including case-insensitive), confirm role restriction (an EMPLOYEE-role account correctly can't create master data), and confirm a newly created designation can immediately be assigned to a new employee
+- Full regression pass across all modules confirmed nothing broke, plus a clean packaging dry-run
+
 ## [0.9.1] - Employee Profile Expansion (9 Sections)
 - Migration 003: extends `employees` with Basic/Work Information fields (name parts, DOB, gender, marital status, blood group, nationality, reporting manager, grade, cost center, probation/notice period, etc.) and adds 9 new tables - Personal Details, Identity, Office Contact, Emergency Contacts, Work Experience, Education, Dependents, Exit Details, Documents
 - Employees page now links to a full Employee Profile page (`/employees/:id`) with a sidebar covering all 9 sections and a header showing photo initials, name, ID, designation, department, join date, and status
