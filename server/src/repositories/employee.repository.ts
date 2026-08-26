@@ -128,4 +128,8 @@ export class EmployeeRepository {
       )
       .run({ ...d, id });
   }
+
+  setPhotoPath(id: number, photoPath: string | null): void {
+    this.db.prepare("UPDATE employees SET photo_path = ? WHERE id = ?").run(photoPath, id);
+  }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuthStore } from "../store/authStore";
@@ -104,6 +104,33 @@ export default function EmployeeProfilePage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [section, setSection] = useState<Section>("Basic Information");
   const [showDocuments, setShowDocuments] = useState(false);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const loadPhoto = useCallback(() => {
+    api
+      .get(`/employees/${employeeId}/photo`, { responseType: "blob" })
+      .then((res) => setPhotoUrl(URL.createObjectURL(res.data)))
+      .catch(() => setPhotoUrl(null)); // 404 = no photo uploaded yet, show initials instead
+  }, [employeeId]);
+
+  async function handlePhotoFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    const formData = new FormData();
+    formData.append("photo", file);
+    try {
+      await api.post(`/employees/${employeeId}/photo`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      loadPhoto();
+    } finally {
+      setUploadingPhoto(false);
+      if (photoInputRef.current) photoInputRef.current.value = "";
+    }
+  }
 
   const loadProfile = useCallback(() => {
     setLoading(true);
@@ -124,7 +151,8 @@ export default function EmployeeProfilePage() {
 
   useEffect(() => {
     loadProfile();
-  }, [loadProfile]);
+    loadPhoto();
+  }, [loadProfile, loadPhoto]);
 
   if (loading) return <div className="text-sm text-slate-500">Loading…</div>;
   if (loadError || !profile) {
@@ -161,8 +189,30 @@ export default function EmployeeProfilePage() {
       {/* Profile header */}
       <div className="bg-white rounded-xl2 shadow-card p-6 mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xl font-semibold">
-            {initials}
+          <div
+            onClick={() => canEdit && photoInputRef.current?.click()}
+            className={`relative w-16 h-16 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xl font-semibold overflow-hidden ${
+              canEdit ? "cursor-pointer group" : ""
+            }`}
+            title={canEdit ? "Click to change photo" : undefined}
+          >
+            {photoUrl ? (
+              <img src={photoUrl} alt={employee.full_name} className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
+            {canEdit && (
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-medium">
+                {uploadingPhoto ? "…" : "Change"}
+              </div>
+            )}
+            <input
+              ref={photoInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handlePhotoFileChosen}
+            />
           </div>
           <div>
             <div className="text-lg font-semibold text-slate-900">{employee.full_name}</div>
@@ -474,10 +524,6 @@ function BasicInfoSection({
           />
         </Field>
       </div>
-      <p className="text-xs text-slate-400 mt-3">
-        Employee photo upload is available from the Documents panel in the header (as a "Photo"
-        document) in this version.
-      </p>
       {canEdit && <SaveBar onSave={handleSave} saving={saving} message={message} />}
     </div>
   );

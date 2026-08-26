@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.3] - Employee Photo, Data Export, Payslip Redesign
+- **Employee photo upload**: click the avatar circle on any employee's profile header to upload a real photo (JPG/PNG/WEBP) - replaces the previous "upload it as a document" workaround. Stored the same safe way as the database and documents (outside the app package, survives reinstalls). Re-uploading replaces the old photo instead of piling up files.
+- **Employee data export**: "Export (Excel)" button on the Employees page downloads every employee's core, work, and status fields as a real `.xlsx` file
+- **Payslip redesign**: rebuilt the payslip PDF layout to match the provided reference design - a green-highlighted Net Pay box in the header, a two-column Earnings/Deductions table with a divider and shaded totals row, and a full-width green "Total Net Payable" box. Dropped the YTD column to match the simpler reference format.
+- Cleaned up a leftover duplicate routes file (`employeeProfile.routes.ts`) found while adding the photo routes - every path in it was already handled by `employee.routes.ts` from an earlier pass, so it was dead code shadowed since the module was first built
+- Verified with a 10-step test: photo 404-before-upload, upload, byte-for-byte download match, re-upload replacing the old file, rejecting non-image extensions, delete, Excel export validity, and the redesigned payslip PDF still producing the exact correct amounts (Rs. 22,992.00 net pay, matching the real payslip)
+- Full regression pass across every module confirmed nothing broke, plus a clean packaging dry-run
+
 ## [0.9.2] - Master Data: Add New Department/Designation/Branch/Shift Inline
 - Departments, Designations, Branches, and Shifts were previously fixed to whatever the initial seed data had - no way to add more without editing the database directly
 - Added `POST /api/meta/departments`, `/designations`, `/branches`, `/shifts` (ADMIN/HR only), each rejecting case-insensitive duplicates with a clear message

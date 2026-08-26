@@ -39,6 +39,7 @@ function configureServerEnvironment() {
   const dbPath = path.join(app.getPath("userData"), "hrms.db");
   process.env.DB_PATH = dbPath;
   process.env.UPLOADS_DIR = path.join(app.getPath("userData"), "uploads", "employee-documents");
+  process.env.EMPLOYEE_PHOTOS_DIR = path.join(app.getPath("userData"), "uploads", "employee-photos");
 }
 
 function startBackendServer() {

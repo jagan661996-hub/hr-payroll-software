@@ -2,8 +2,8 @@ import PDFDocument from "pdfkit";
 import { PassThrough } from "stream";
 import Database from "better-sqlite3";
 import { EmployeeRepository } from "../repositories/employee.repository";
-import { PayslipRepository, Payslip } from "../repositories/payslip.repository";
-import { numberToIndianWords, fiscalYearStart } from "./payrollCalculation.service";
+import { PayslipRepository } from "../repositories/payslip.repository";
+import { numberToIndianWords } from "./payrollCalculation.service";
 
 const EARNING_LABELS: Record<string, string> = {
   basic: "Basic",
@@ -24,6 +24,15 @@ const DEDUCTION_LABELS: Record<string, string> = {
   advance_deduction: "Advance"
 };
 
+const GREEN_ACCENT = "#10b981";
+const GREEN_BG = "#ecfdf5";
+const GREEN_BORDER = "#a7f3d0";
+const GREEN_TEXT = "#065f46";
+const GRAY_LABEL = "#64748b";
+const GRAY_HEADING = "#334155";
+const ROW_SHADE = "#f8fafc";
+const DIVIDER = "#e2e8f0";
+
 // pdfkit's built-in Helvetica font doesn't include the ₹ glyph, so
 // currency amounts use "Rs." rather than risk it rendering as a
 // missing-glyph box - verified visually before shipping.
@@ -34,6 +43,12 @@ function formatMoney(n: number): string {
 function monthName(payPeriod: string): string {
   const [y, m] = payPeriod.split("-").map(Number);
   return new Date(y, m - 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+}
+
+function formatLongDate(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
 export function generatePayslipPdf(payslipId: number, db: Database.Database): PassThrough {
@@ -49,135 +64,162 @@ export function generatePayslipPdf(payslipId: number, db: Database.Database): Pa
     deductions: Record<string, number>;
   };
 
-  // Year-to-date: sum this and every prior payslip in the same Indian
-  // financial year (April-March).
-  const fyStart = fiscalYearStart(payslip.pay_period);
-  const ytdPayslips = payslipRepo.findForYtd(payslip.employee_id, fyStart, payslip.pay_period);
-  const ytdEarnings: Record<string, number> = {};
-  const ytdDeductions: Record<string, number> = {};
-  for (const p of ytdPayslips) {
-    const b = JSON.parse(p.breakdown_json) as {
-      earnings: Record<string, number>;
-      deductions: Record<string, number>;
-    };
-    for (const [k, v] of Object.entries(b.earnings)) ytdEarnings[k] = (ytdEarnings[k] ?? 0) + v;
-    for (const [k, v] of Object.entries(b.deductions))
-      ytdDeductions[k] = (ytdDeductions[k] ?? 0) + v;
-  }
-
   const doc = new PDFDocument({ size: "A4", margin: 50 });
   const stream = new PassThrough();
   doc.pipe(stream);
 
-  // Header
-  doc.fontSize(14).font("Helvetica-Bold").text("Industrial Fans India Private Limited");
-  doc
-    .fontSize(9)
-    .font("Helvetica")
-    .text("28 New Boag Road, CIT Nagar, Kannamapet, Chennai, Tamil Nadu 600017, India");
-  doc.moveDown(0.5);
-  doc.fontSize(11).font("Helvetica-Bold").text(`Payslip For the Month - ${monthName(payslip.pay_period)}`);
-  doc.moveDown(0.8);
+  const LEFT = 50;
+  const RIGHT = 545;
+  const WIDTH = RIGHT - LEFT;
 
-  // Employee summary
-  doc.fontSize(10).font("Helvetica-Bold").text("EMPLOYEE SUMMARY");
-  doc.moveDown(0.3);
-  doc.font("Helvetica").fontSize(9.5);
+  // ===== Header: company name/address left, "Payslip For the Month" right =====
+  doc.fillColor("black").font("Helvetica-Bold").fontSize(14).text("Industrial Fans India Private Limited", LEFT, 50, { width: 280 });
+  doc
+    .font("Helvetica")
+    .fontSize(8.5)
+    .fillColor(GRAY_LABEL)
+    .text("28 New Boag Road, CIT Nagar, Kannamapet, Chennai, Tamil Nadu 600017, India", LEFT, 68, {
+      width: 280
+    });
+
+  doc.font("Helvetica").fontSize(8.5).fillColor(GRAY_LABEL).text("Payslip For the Month", 345, 50, {
+    width: 200,
+    align: "right"
+  });
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(13)
+    .fillColor("black")
+    .text(monthName(payslip.pay_period), 345, 63, { width: 200, align: "right" });
+
+  doc.moveTo(LEFT, 95).lineTo(RIGHT, 95).strokeColor(DIVIDER).lineWidth(1).stroke();
+
+  // ===== Employee summary (left) + Net Pay highlight (right) =====
+  doc.font("Helvetica-Bold").fontSize(9).fillColor(GRAY_HEADING).text("EMPLOYEE SUMMARY", LEFT, 110);
+
   const summaryRows: [string, string][] = [
     ["Employee Name", employee?.full_name ?? payslip.employee_name],
     ["Designation", employee?.designation_title ?? "—"],
     ["Employee ID", payslip.employee_code],
-    ["Date of Joining", employee?.date_of_joining ?? "—"],
+    ["Date of Joining", formatLongDate(employee?.date_of_joining ?? null)],
     ["Pay Period", monthName(payslip.pay_period)],
-    ["Pay Date", payslip.pay_date ?? "—"],
-    ["Paid Days", String(payslip.paid_days)],
-    ["LOP Days", String(payslip.lop_days)]
+    ["Pay Date", formatLongDate(payslip.pay_date)]
   ];
-  const summaryStartY = doc.y;
-  summaryRows.forEach(([label, value], i) => {
-    doc.text(label, 50, summaryStartY + i * 14, { continued: true, width: 200 });
-    doc.text(`  ${value}`);
-  });
-  doc.y = summaryStartY + summaryRows.length * 14 + 10;
-
-  // Earnings / Deductions table
-  doc.moveDown(0.5);
-  const tableTop = doc.y;
-  const col1 = 50;
-  const col2 = 220;
-  const col3 = 320;
-  const col4 = 420;
-
-  doc.font("Helvetica-Bold").fontSize(9.5);
-  doc.text("EARNINGS", col1, tableTop);
-  doc.text("AMOUNT", col2, tableTop);
-  doc.text("YTD", col3, tableTop);
-  doc.text("DEDUCTIONS", col4, tableTop);
-
-  let rowY = tableTop + 16;
+  let sy = 130;
   doc.font("Helvetica").fontSize(9);
+  summaryRows.forEach(([label, value]) => {
+    doc.fillColor(GRAY_LABEL).text(label, LEFT, sy, { width: 110 });
+    doc.fillColor("black").text(`: ${value}`, LEFT + 112, sy, { width: 170 });
+    sy += 15;
+  });
+
+  // Net pay highlight box
+  const boxX = 350;
+  const boxW = RIGHT - boxX;
+  doc.rect(boxX, 110, boxW, 62).fillAndStroke(GREEN_BG, GREEN_BORDER);
+  doc.rect(boxX, 110, 4, 62).fill(GREEN_ACCENT);
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(17)
+    .fillColor(GREEN_TEXT)
+    .text(formatMoney(payslip.net_pay), boxX + 15, 123, { width: boxW - 25 });
+  doc
+    .font("Helvetica")
+    .fontSize(8.5)
+    .fillColor(GRAY_LABEL)
+    .text("Employee Net Pay", boxX + 15, 150, { width: boxW - 25 });
+
+  doc.moveTo(boxX, 180).lineTo(RIGHT, 180).strokeColor(DIVIDER).stroke();
+  doc
+    .font("Helvetica")
+    .fontSize(9)
+    .fillColor(GRAY_LABEL)
+    .text("Paid Days", boxX, 190, { continued: true })
+    .fillColor("black")
+    .text(`  :  ${payslip.paid_days}`);
+  doc
+    .fillColor(GRAY_LABEL)
+    .text("LOP Days", boxX, 205, { continued: true })
+    .fillColor("black")
+    .text(`  :  ${payslip.lop_days}`);
+
+  // ===== Earnings / Deductions table =====
+  const tableTop = 235;
+  const divX = 300;
+  doc.font("Helvetica-Bold").fontSize(9).fillColor(GRAY_HEADING);
+  doc.text("EARNINGS", LEFT, tableTop);
+  doc.text("AMOUNT", 180, tableTop, { width: 110, align: "right" });
+  doc.text("DEDUCTIONS", divX + 10, tableTop);
+  doc.text("AMOUNT", 435, tableTop, { width: 110, align: "right" });
 
   const earningKeys = Object.keys(EARNING_LABELS).filter((k) => breakdown.earnings[k]);
   const deductionKeys = Object.keys(DEDUCTION_LABELS).filter((k) => breakdown.deductions[k]);
-  const maxRows = Math.max(earningKeys.length, deductionKeys.length);
+  const maxRows = Math.max(earningKeys.length, deductionKeys.length, 1);
 
+  let rowY = tableTop + 18;
+  doc.font("Helvetica").fontSize(9);
   for (let i = 0; i < maxRows; i++) {
     if (i < earningKeys.length) {
       const key = earningKeys[i];
-      doc.text(EARNING_LABELS[key], col1, rowY);
-      doc.text(formatMoney(breakdown.earnings[key]), col2, rowY);
-      doc.text(formatMoney(ytdEarnings[key] ?? breakdown.earnings[key]), col3, rowY);
+      doc.fillColor("black").text(EARNING_LABELS[key], LEFT, rowY, { width: 145 });
+      doc.text(formatMoney(breakdown.earnings[key]), 180, rowY, { width: 110, align: "right" });
     }
     if (i < deductionKeys.length) {
       const key = deductionKeys[i];
-      doc.text(
-        `${DEDUCTION_LABELS[key]}: ${formatMoney(breakdown.deductions[key])}`,
-        col4,
-        rowY,
-        { width: 130 }
-      );
+      doc.fillColor("black").text(DEDUCTION_LABELS[key], divX + 10, rowY, { width: 115 });
+      doc.text(formatMoney(breakdown.deductions[key]), 435, rowY, { width: 110, align: "right" });
     }
-    rowY += 15;
+    rowY += 16;
   }
 
-  doc.moveTo(50, rowY + 2).lineTo(545, rowY + 2).strokeColor("#cccccc").stroke();
-  rowY += 10;
+  // Shaded totals row
+  doc.rect(LEFT, rowY, WIDTH, 22).fill(ROW_SHADE);
+  doc.font("Helvetica-Bold").fontSize(9).fillColor("black");
+  doc.text("Gross Earnings", LEFT + 2, rowY + 6, { width: 145 });
+  doc.text(formatMoney(payslip.gross_earnings), 180, rowY + 6, { width: 110, align: "right" });
+  doc.text("Total Deductions", divX + 12, rowY + 6, { width: 115 });
+  doc.text(formatMoney(payslip.total_deductions), 435, rowY + 6, { width: 110, align: "right" });
+  rowY += 22;
 
-  doc.font("Helvetica-Bold").fontSize(9.5);
-  doc.text(`Gross Earnings: ${formatMoney(payslip.gross_earnings)}`, col1, rowY);
-  doc.text(`Total Deductions: ${formatMoney(payslip.total_deductions)}`, col4, rowY, {
-    width: 145
-  });
-  rowY += 30;
+  // Vertical divider spanning the whole table, drawn last so it sits on top
+  doc.moveTo(divX, tableTop).lineTo(divX, rowY).strokeColor(DIVIDER).stroke();
 
-  // Net payable
-  doc.rect(50, rowY, 495, 55).fillAndStroke("#f7f8fb", "#e2e8f0");
+  // ===== Total net payable (full width) =====
+  const totalBoxY = rowY + 15;
+  doc.rect(LEFT, totalBoxY, WIDTH, 55).fillAndStroke(GREEN_BG, GREEN_BORDER);
+  doc.rect(LEFT, totalBoxY, 4, 55).fill(GREEN_ACCENT);
   doc
-    .fillColor("#0f172a")
     .font("Helvetica-Bold")
     .fontSize(11)
-    .text("TOTAL NET PAYABLE", 65, rowY + 10);
+    .fillColor("black")
+    .text("TOTAL NET PAYABLE", LEFT + 15, totalBoxY + 11);
   doc
-    .fontSize(9)
     .font("Helvetica")
-    .text("Gross Earnings - Total Deductions", 65, rowY + 28);
+    .fontSize(8.5)
+    .fillColor(GRAY_LABEL)
+    .text("Gross Earnings - Total Deductions", LEFT + 15, totalBoxY + 29);
   doc
     .font("Helvetica-Bold")
-    .fontSize(14)
-    .text(formatMoney(payslip.net_pay), 380, rowY + 15, { width: 150, align: "right" });
+    .fontSize(15)
+    .fillColor(GREEN_TEXT)
+    .text(formatMoney(payslip.net_pay), LEFT + 300, totalBoxY + 17, { width: 180, align: "right" });
 
-  rowY += 70;
+  const afterBoxY = totalBoxY + 55 + 18;
   doc
-    .fillColor("black")
     .font("Helvetica")
-    .fontSize(9)
-    .text(`Amount In Words: Indian Rupee ${numberToIndianWords(payslip.net_pay)} Only`, 50, rowY);
+    .fontSize(8.5)
+    .fillColor(GRAY_LABEL)
+    .text(`Amount In Words : Indian Rupee ${numberToIndianWords(payslip.net_pay)} Only`, LEFT, afterBoxY);
 
-  rowY += 25;
   doc
     .fontSize(8)
     .fillColor("#94a3b8")
-    .text("-- This is a system-generated document. --", 50, rowY, { width: 495, align: "center" });
+    .text(
+      "This is a system-generated document and does not require a signature.",
+      LEFT,
+      afterBoxY + 25,
+      { width: WIDTH, align: "center" }
+    );
 
   doc.end();
   return stream;

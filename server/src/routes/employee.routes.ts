@@ -4,7 +4,11 @@ import {
   listEmployees,
   getEmployeeSummary,
   createEmployee,
-  updateEmployee
+  updateEmployee,
+  uploadEmployeePhoto,
+  getEmployeePhoto,
+  deleteEmployeePhoto,
+  exportEmployeesExcel
 } from "../controllers/employee.controller";
 import {
   getEmployeeProfile,
@@ -36,6 +40,11 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 } // supporting documents (scans, certificates) can be sizeable
 });
 
+const uploadPhoto = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // a profile photo doesn't need to be huge
+});
+
 const router = Router();
 
 router.use(authenticate);
@@ -43,8 +52,14 @@ router.use(authenticate);
 // ===== Basic list/summary/CRUD (Phase 4) =====
 router.get("/", listEmployees);
 router.get("/summary", getEmployeeSummary);
+router.get("/export", requireRole("ADMIN", "HR"), exportEmployeesExcel);
 router.post("/", requireRole("ADMIN", "HR"), createEmployee);
 router.put("/:id", requireRole("ADMIN", "HR"), updateEmployee);
+
+// ===== Profile photo =====
+router.post("/:id/photo", requireRole("ADMIN", "HR"), uploadPhoto.single("photo"), uploadEmployeePhoto);
+router.get("/:id/photo", getEmployeePhoto);
+router.delete("/:id/photo", requireRole("ADMIN", "HR"), deleteEmployeePhoto);
 
 // ===== Full profile (aggregated read) =====
 router.get("/:id/profile", getEmployeeProfile);

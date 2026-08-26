@@ -58,17 +58,35 @@ export default function EmployeesPage() {
     loadData();
   }
 
+  async function handleExport() {
+    const res = await api.get("/employees/export", { responseType: "blob" });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Employees_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-slate-900">Employees</h2>
         {canEdit && (
-          <button
-            onClick={openAddModal}
-            className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium"
-          >
-            + Add Employee
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleExport}
+              className="px-4 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-medium"
+            >
+              Export (Excel)
+            </button>
+            <button
+              onClick={openAddModal}
+              className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium"
+            >
+              + Add Employee
+            </button>
+          </div>
         )}
       </div>
 
