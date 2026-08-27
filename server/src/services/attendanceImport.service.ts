@@ -14,8 +14,42 @@ export interface ImportResult {
 const NAME_COLUMN_INDEX = 1;
 const FIRST_DATE_COLUMN_INDEX = 3;
 
+// Deliberately forgiving: strips ALL punctuation and whitespace, not
+// just collapsing spaces. Real spreadsheets are inconsistent about
+// "M.Jagan" vs "M. Jagan" vs "M Jagan" - none of that should matter
+// for matching a name that's otherwise identical.
 function normalizeName(name: string): string {
-  return name.trim().replace(/\s+/g, " ").toLowerCase();
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+// Different attendance registers use different shorthand for the same
+// thing (e.g. this file uses "S" for Sunday where an earlier one used
+// blank cells for week-offs). Map every known variant onto the
+// system's own status vocabulary so the display is always consistent
+// regardless of which spreadsheet convention was used.
+const STATUS_SYNONYMS: Record<string, string> = {
+  S: "WO",
+  SUN: "WO",
+  SUNDAY: "WO",
+  WEEKOFF: "WO",
+  "WEEK OFF": "WO",
+  HALFDAY: "HD",
+  "HALF DAY": "HD",
+  HOLIDAY: "HL",
+  ABSENT: "A",
+  PRESENT: "P",
+  ONDUTY: "OD",
+  "ON DUTY": "OD",
+  LEAVE: "L",
+  WORKFROMHOME: "WFH",
+  "WORK FROM HOME": "WFH"
+};
+
+function normalizeStatusCode(raw: string): string {
+  const upper = raw.trim().toUpperCase();
+  return STATUS_SYNONYMS[upper] ?? upper;
 }
 
 function toIsoDate(cellValue: unknown): string | null {
@@ -86,7 +120,7 @@ export function importAttendanceExcel(buffer: Buffer, db: Database.Database): Im
     for (const { index, isoDate } of dateColumns) {
       const cell = row[index];
       if (cell === undefined || cell === null || cell === "") continue; // blank = week off/holiday, don't record
-      const statusCode = String(cell).trim().toUpperCase();
+      const statusCode = normalizeStatusCode(String(cell));
       attendanceRepo.upsert(employee.id, isoDate, statusCode, "EXCEL_IMPORT");
       daysImported++;
     }

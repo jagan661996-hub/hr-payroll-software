@@ -13,8 +13,11 @@ export interface LeaveImportResult {
 const HISTORICAL_LEAVE_TYPE_NAME = "Imported Leave (Historical)";
 const MONTH_COLUMN_COUNT = 12; // Jan..Dec, always immediately after Sl:No/Name/Location
 
+// Same forgiving normalization as the attendance import - strips all
+// punctuation/whitespace so "M.Jagan" / "M. Jagan" / "M Jagan" all
+// match the same employee record.
 function normalizeName(name: string): string {
-  return name.trim().replace(/\s+/g, " ").toLowerCase();
+  return name.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
 function findHeaderRowIndex(rows: unknown[][]): number {

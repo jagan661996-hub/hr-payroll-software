@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.4] - Attendance Import Fixes + Export
+- **Root cause of "not matching"**: your new attendance file uses `S` for Sunday/week-off, a status code the system didn't recognize - it now gets automatically normalized to the existing `WO` (Week Off) status, along with several other common synonyms (SUNDAY, HALFDAY, WEEKOFF, etc.) so different spreadsheet conventions all land on the same consistent vocabulary
+- **Name matching made much more forgiving**: previously "M.Jagan" and "M. Jagan" (just a missing space) would fail to match. Matching now strips all punctuation and whitespace before comparing, so formatting differences in how names are typed no longer cause real employees to go unmatched. Applied to both Attendance and Leave register imports.
+- **Attendance data export**: "Export (Excel)" button on the Attendance page downloads the current month's grid in the same layout used for import
+- Verified directly against your actual uploaded `Attendance_July_2026.xlsx`: 0 unmatched employees (previously would have missed a space-variant name), and confirmed `S` cells are now stored as `WO` instead of an unrecognized raw code
+- Full regression pass across every module confirmed nothing broke, plus a clean packaging dry-run
+
 ## [0.9.3] - Employee Photo, Data Export, Payslip Redesign
 - **Employee photo upload**: click the avatar circle on any employee's profile header to upload a real photo (JPG/PNG/WEBP) - replaces the previous "upload it as a document" workaround. Stored the same safe way as the database and documents (outside the app package, survives reinstalls). Re-uploading replaces the old photo instead of piling up files.
 - **Employee data export**: "Export (Excel)" button on the Employees page downloads every employee's core, work, and status fields as a real `.xlsx` file

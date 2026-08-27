@@ -94,6 +94,19 @@ export default function AttendancePage() {
     }
   }
 
+  async function handleExport() {
+    const res = await api.get("/attendance/export", {
+      params: { year, month },
+      responseType: "blob"
+    });
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Attendance_${year}-${String(month).padStart(2, "0")}.xlsx`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
   async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -142,6 +155,13 @@ export default function AttendancePage() {
               →
             </button>
           </div>
+
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-sm font-medium"
+          >
+            Export (Excel)
+          </button>
 
           {canEdit && (
             <label className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium cursor-pointer">
