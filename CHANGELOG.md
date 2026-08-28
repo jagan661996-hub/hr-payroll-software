@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.5] - Fixed Timezone-Dependent Date Bug (Attendance Import & More)
+- **Root cause found**: the underlying spreadsheet library's date conversion (`cellDates: true`) turned out to itself be timezone-sensitive at the moment it parses a file - the exact same cell in the exact same file produced a genuinely different underlying value depending on the machine's local timezone, before any of our own code even touched it. This is why it worked correctly in testing but showed dates shifted by a day on a real Windows PC set to India time.
+- **The real fix**: attendance import now reads Excel's raw date-serial *number* directly and converts it to a calendar date with pure arithmetic - no Date-object timezone concept enters at any point, so the result is identical on every machine regardless of timezone. Verified directly against the real diagnostic: the same file's date cell produced serial `46204` (→ `2026-07-01`) consistently under UTC, US Pacific, India, and even an extreme +14:00 timezone.
+- Found and fixed the same underlying bug class in three other places that format stored dates for display/PDFs (Payslip PDF, On Duty PDF, Appointment Letter) - these parsed a "YYYY-MM-DD" string with `new Date(str)`, which JavaScript treats as UTC midnight, then read it back with local-timezone getters; fixed to parse the string manually and build the date with the local constructor instead, so construction and reading are always consistent
+- Also fixed the Work Experience auto-calculated-months feature, which had the same latent issue
+- **Verified with a strict per-day test against the real uploaded file, run under four different timezones** (UTC, US Pacific, India, and Kiritimati at UTC+14) - every single day matched exactly in every timezone, including the one that was actually broken before (India)
+- Full regression suite re-run under India's timezone specifically confirmed no other feature (payroll, PDFs, appointment letters, experience calculation) was affected
+
 ## [0.9.4] - Attendance Import Fixes + Export
 - **Root cause of "not matching"**: your new attendance file uses `S` for Sunday/week-off, a status code the system didn't recognize - it now gets automatically normalized to the existing `WO` (Week Off) status, along with several other common synonyms (SUNDAY, HALFDAY, WEEKOFF, etc.) so different spreadsheet conventions all land on the same consistent vocabulary
 - **Name matching made much more forgiving**: previously "M.Jagan" and "M. Jagan" (just a missing space) would fail to match. Matching now strips all punctuation and whitespace before comparing, so formatting differences in how names are typed no longer cause real employees to go unmatched. Applied to both Attendance and Leave register imports.

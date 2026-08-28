@@ -13,9 +13,14 @@ import {
 import Database from "better-sqlite3";
 import { EmployeeRepository } from "../repositories/employee.repository";
 import { SalaryStructureRepository } from "../repositories/salaryStructure.repository";
+import { parseIsoDateLocal } from "../utils/dateUtils";
 
 function formatLongDate(iso: string): string {
-  const d = new Date(iso);
+  // parseIsoDateLocal, not new Date(iso) - see dateUtils.ts. Parsing a
+  // plain date string with new Date() gives UTC midnight, and reading
+  // it back with local getters can show the previous day depending on
+  // the machine's timezone.
+  const d = parseIsoDateLocal(iso);
   const day = d.getDate();
   const suffix =
     day % 10 === 1 && day !== 11

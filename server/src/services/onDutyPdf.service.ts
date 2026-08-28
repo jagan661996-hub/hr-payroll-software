@@ -3,9 +3,11 @@ import { PassThrough } from "stream";
 import Database from "better-sqlite3";
 import { OnDutyRepository } from "../repositories/onDuty.repository";
 import { EmployeeRepository } from "../repositories/employee.repository";
+import { parseIsoDateLocal } from "../utils/dateUtils";
 
 function formatDate(iso: string): string {
-  const d = new Date(iso);
+  // parseIsoDateLocal, not new Date(iso) - see dateUtils.ts.
+  const d = parseIsoDateLocal(iso);
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 

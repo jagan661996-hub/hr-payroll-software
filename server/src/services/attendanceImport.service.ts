@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 import Database from "better-sqlite3";
 import { EmployeeRepository } from "../repositories/employee.repository";
 import { AttendanceRepository } from "../repositories/attendance.repository";
+import { excelSerialToIso, looksLikeExcelDateSerial } from "../utils/dateUtils";
 
 export interface ImportResult {
   daysImported: number;
@@ -53,19 +54,22 @@ function normalizeStatusCode(raw: string): string {
 }
 
 function toIsoDate(cellValue: unknown): string | null {
-  if (cellValue instanceof Date) {
-    const y = cellValue.getFullYear();
-    const m = String(cellValue.getMonth() + 1).padStart(2, "0");
-    const d = String(cellValue.getDate()).padStart(2, "0");
-    return `${y}-${m}-${d}`;
+  // Deliberately reads the RAW numeric Excel date serial (see
+  // dateUtils.ts for why cellDates:true isn't used here at all - it
+  // was verified to produce a different underlying value depending on
+  // the machine's timezone, which is exactly the bug this file used
+  // to have).
+  if (typeof cellValue === "number" && looksLikeExcelDateSerial(cellValue)) {
+    return excelSerialToIso(cellValue);
   }
   return null;
 }
 
 export function importAttendanceExcel(buffer: Buffer, db: Database.Database): ImportResult {
-  // cellDates:true so date-formatted header cells come back as real
-  // JS Date objects instead of Excel's numeric serial format.
-  const workbook = XLSX.read(buffer, { type: "buffer", cellDates: true });
+  // Deliberately NOT using cellDates:true - see toIsoDate/dateUtils.ts.
+  // Reading raw numeric date serials and converting them ourselves
+  // with pure arithmetic is the only genuinely timezone-safe approach.
+  const workbook = XLSX.read(buffer, { type: "buffer" });
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows: unknown[][] = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true });
 

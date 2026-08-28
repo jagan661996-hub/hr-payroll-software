@@ -4,6 +4,7 @@ import Database from "better-sqlite3";
 import { EmployeeRepository } from "../repositories/employee.repository";
 import { PayslipRepository } from "../repositories/payslip.repository";
 import { numberToIndianWords } from "./payrollCalculation.service";
+import { parseIsoDateLocal } from "../utils/dateUtils";
 
 const EARNING_LABELS: Record<string, string> = {
   basic: "Basic",
@@ -47,7 +48,8 @@ function monthName(payPeriod: string): string {
 
 function formatLongDate(iso: string | null): string {
   if (!iso) return "—";
-  const d = new Date(iso);
+  // parseIsoDateLocal, not new Date(iso) - see dateUtils.ts.
+  const d = parseIsoDateLocal(iso);
   return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 

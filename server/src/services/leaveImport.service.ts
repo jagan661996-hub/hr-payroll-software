@@ -43,7 +43,10 @@ function extractYear(rows: unknown[][], headerRowIndex: number): number | null {
 }
 
 export function importLeaveRegister(buffer: Buffer, db: Database.Database): LeaveImportResult {
-  const workbook = XLSX.read(buffer, { type: "buffer", cellDates: true });
+  // No cellDates:true needed - this file only ever reads numbers and
+  // text (month totals, names, the year mentioned in a title row),
+  // never an actual Date-typed cell.
+  const workbook = XLSX.read(buffer, { type: "buffer" });
 
   const employeeRepo = new EmployeeRepository(db);
   const balanceRepo = new LeaveBalanceRepository(db);

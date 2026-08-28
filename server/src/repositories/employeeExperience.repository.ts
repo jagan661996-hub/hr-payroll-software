@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { parseIsoDateLocal } from "../utils/dateUtils";
 
 export interface Experience {
   id: number;
@@ -24,8 +25,8 @@ export type ExperienceInput = Omit<
 
 function monthsBetween(from: string | null, to: string | null): number | null {
   if (!from || !to) return null;
-  const fromDate = new Date(from);
-  const toDate = new Date(to);
+  const fromDate = parseIsoDateLocal(from);
+  const toDate = parseIsoDateLocal(to);
   if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) return null;
   return Math.max(
     0,
