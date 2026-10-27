@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.9.6] - Editable Pay Date on Payslips
+- **Root cause of "changing the pay date doesn't reflect on the PDF"**: there was nothing to change - the pay date was hardcoded to whatever today's date was at the moment "Run Payroll" was clicked, with no field anywhere in the app to set it
+- Added a **Pay Date** field on the Payroll page, used when running payroll
+- Added an **Update Pay Date** button (appears once a month has payslips) that changes the pay date on that month's payslips *without* re-running payroll, so calculated amounts are never touched
+- New endpoint `PUT /api/payroll/pay-date` (ADMIN/HR only), recorded in the audit log; rejects malformed dates and months with no payslips
+- Fixed a related latent bug: the default date used `toISOString()`, which is the UTC date and would show yesterday's date for part of the day in India - now uses the local calendar date
+- Verified against the actual generated PDF text (not just the database), under both UTC and India time: set 5 Nov -> PDF shows November 5, 2026; changed to 20 Oct without re-running -> PDF shows October 20, 2026 with net pay unchanged
+
 ## [0.9.5] - Fixed Timezone-Dependent Date Bug (Attendance Import & More)
 - **Root cause found**: the underlying spreadsheet library's date conversion (`cellDates: true`) turned out to itself be timezone-sensitive at the moment it parses a file - the exact same cell in the exact same file produced a genuinely different underlying value depending on the machine's local timezone, before any of our own code even touched it. This is why it worked correctly in testing but showed dates shifted by a day on a real Windows PC set to India time.
 - **The real fix**: attendance import now reads Excel's raw date-serial *number* directly and converts it to a calendar date with pure arithmetic - no Date-object timezone concept enters at any point, so the result is identical on every machine regardless of timezone. Verified directly against the real diagnostic: the same file's date cell produced serial `46204` (→ `2026-07-01`) consistently under UTC, US Pacific, India, and even an extreme +14:00 timezone.

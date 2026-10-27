@@ -51,6 +51,15 @@ export class PayslipRepository {
       .all(employeeId, fromPeriod, uptoPeriod) as Payslip[];
   }
 
+  // Changes only the pay date for every payslip in a period - does not
+  // recalculate anything, so amounts are untouched.
+  updatePayDateForPeriod(payPeriod: string, payDate: string): number {
+    const result = this.db
+      .prepare(`UPDATE payslips SET pay_date = ? WHERE pay_period = ?`)
+      .run(payDate, payPeriod);
+    return result.changes;
+  }
+
   upsert(data: Omit<Payslip, "id" | "generated_at">): number {
     const result = this.db
       .prepare(

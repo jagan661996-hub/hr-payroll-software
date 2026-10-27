@@ -120,6 +120,37 @@ export function runPayroll(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+const payDateSchema = z.object({
+  year: z.number().int().min(2000).max(2100),
+  month: z.number().int().min(1).max(12),
+  pay_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pay date must be a valid date")
+});
+
+// Lets HR correct the pay date on already-generated payslips without
+// re-running payroll (which would recalculate amounts from attendance).
+export function updatePayDate(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { year, month, pay_date } = payDateSchema.parse(req.body);
+    const db = getDb();
+    const payPeriod = `${year}-${String(month).padStart(2, "0")}`;
+    const updated = new PayslipRepository(db).updatePayDateForPeriod(payPeriod, pay_date);
+    if (updated === 0) {
+      throw new AppError(404, "No payslips exist for that month yet - run payroll first");
+    }
+    logAudit(db, req.user!.id, "UPDATE_PAY_DATE", "payslips", undefined, {
+      payPeriod,
+      pay_date,
+      updated
+    });
+    res.json({ payPeriod, pay_date, updated });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return next(new AppError(400, err.issues[0]?.message ?? "Invalid pay date"));
+    }
+    next(err);
+  }
+}
+
 const periodQuerySchema = z.object({
   year: z.coerce.number().int().min(2000).max(2100),
   month: z.coerce.number().int().min(1).max(12)

@@ -9,6 +9,13 @@ function formatMoney(n: number) {
   return `Rs. ${n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+// Local calendar date as YYYY-MM-DD. (new Date().toISOString() would give
+// the UTC date, which is yesterday's date for part of the day in India.)
+function todayLocalIso() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export default function PayrollPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
@@ -21,6 +28,9 @@ export default function PayrollPage() {
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState<RunPayrollResult | null>(null);
   const [structureEmployee, setStructureEmployee] = useState<Employee | null>(null);
+  const [payDate, setPayDate] = useState(todayLocalIso());
+  const [payDateMessage, setPayDateMessage] = useState<string | null>(null);
+  const [savingPayDate, setSavingPayDate] = useState(false);
 
   const role = useAuthStore((s) => s.user?.role);
   const canManage = role === "ADMIN" || role === "HR";
@@ -35,6 +45,10 @@ export default function PayrollPage() {
       ]);
       setPayslips(payslipsRes.data);
       setEmployees(employeesRes.data);
+      // Show the pay date already recorded for this month; otherwise
+      // fall back to today for a month that hasn't been run yet.
+      const existing = (payslipsRes.data as Payslip[]).find((p) => p.pay_date)?.pay_date;
+      setPayDate(existing ?? todayLocalIso());
     } catch {
       setLoadError("Could not load payroll data.");
     } finally {
@@ -66,7 +80,6 @@ export default function PayrollPage() {
     setRunResult(null);
     setLoadError(null);
     try {
-      const payDate = new Date().toISOString().slice(0, 10);
       const res = await api.post("/payroll/run", { year, month, pay_date: payDate });
       setRunResult(res.data);
       loadData();
@@ -74,6 +87,21 @@ export default function PayrollPage() {
       setLoadError(err.response?.data?.error ?? "Could not run payroll.");
     } finally {
       setRunning(false);
+    }
+  }
+
+  async function handleUpdatePayDate() {
+    setSavingPayDate(true);
+    setPayDateMessage(null);
+    setLoadError(null);
+    try {
+      const res = await api.put("/payroll/pay-date", { year, month, pay_date: payDate });
+      setPayDateMessage(`Pay date updated on ${res.data.updated} payslip(s).`);
+      loadData();
+    } catch (err: any) {
+      setLoadError(err.response?.data?.error ?? "Could not update the pay date.");
+    } finally {
+      setSavingPayDate(false);
     }
   }
 
@@ -115,16 +143,40 @@ export default function PayrollPage() {
           </div>
 
           {canManage && (
-            <button
-              onClick={handleRunPayroll}
-              disabled={running}
-              className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium"
-            >
-              {running ? "Running…" : "Run Payroll"}
-            </button>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-slate-600">Pay Date</label>
+              <input
+                type="date"
+                value={payDate}
+                onChange={(e) => setPayDate(e.target.value)}
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+              {payslips.length > 0 && (
+                <button
+                  onClick={handleUpdatePayDate}
+                  disabled={savingPayDate || !payDate}
+                  className="px-3 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-60 text-slate-700 text-sm font-medium"
+                >
+                  {savingPayDate ? "Saving…" : "Update Pay Date"}
+                </button>
+              )}
+              <button
+                onClick={handleRunPayroll}
+                disabled={running || !payDate}
+                className="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-700 disabled:opacity-60 text-white text-sm font-medium"
+              >
+                {running ? "Running…" : "Run Payroll"}
+              </button>
+            </div>
           )}
         </div>
       </div>
+
+      {payDateMessage && (
+        <div className="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-4 py-3">
+          {payDateMessage}
+        </div>
+      )}
 
       {runResult && (
         <div className="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm px-4 py-3">

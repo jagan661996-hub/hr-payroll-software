@@ -37,6 +37,15 @@ function startStaticServer() {
         server.listen(STATIC_PORT, "127.0.0.1", () => resolve());
     });
 }
+function configureServerEnvironment() {
+    const dbPath = path_1.default.join(electron_1.app.getPath("userData"), "hrms.db");
+    process.env.DB_PATH = dbPath;
+    process.env.UPLOADS_DIR = path_1.default.join(electron_1.app.getPath("userData"), "uploads", "employee-documents");
+    process.env.EMPLOYEE_PHOTOS_DIR = path_1.default.join(electron_1.app.getPath("userData"), "uploads", "employee-photos");
+}
+function startBackendServer() {
+    require(path_1.default.join(__dirname, "../server/dist/index.js"));
+}
 function createWindow() {
     const win = new electron_1.BrowserWindow({
         width: 1280,
@@ -59,6 +68,8 @@ function createWindow() {
     }
 }
 electron_1.app.whenReady().then(async () => {
+    configureServerEnvironment();
+    startBackendServer();
     if (!process.env.VITE_DEV_SERVER_URL) {
         await startStaticServer();
     }

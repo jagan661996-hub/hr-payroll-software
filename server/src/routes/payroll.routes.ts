@@ -3,6 +3,7 @@ import {
   getSalaryStructure,
   saveSalaryStructure,
   runPayroll,
+  updatePayDate,
   listPayslips,
   downloadPayslipPdf
 } from "../controllers/payroll.controller";
@@ -14,6 +15,7 @@ router.use(authenticate);
 router.get("/structure/:employeeId", getSalaryStructure);
 router.put("/structure/:employeeId", requireRole("ADMIN", "HR"), saveSalaryStructure);
 router.post("/run", requireRole("ADMIN", "HR"), runPayroll);
+router.put("/pay-date", requireRole("ADMIN", "HR"), updatePayDate);
 router.get("/payslips", listPayslips);
 router.get("/payslips/:id/pdf", downloadPayslipPdf);
 
